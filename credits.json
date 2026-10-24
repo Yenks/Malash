@@ -1,0 +1,36 @@
+{
+  "heading": "Crafted by the GMSA-KNUST IT & Media Committee",
+  "subheading": "With love from GMSA-KNUST at large",
+  "logos": {
+    "association": "/images/gmsa-logo.svg",
+    "committee": "/images/it-media-logo.svg"
+  },
+  "logoGmsaAlt": "GMSA KNUST Branch",
+  "logoCommitteeAlt": "GMSA IT and Media Committee",
+  "logoGmsaPlaceholder": "GMSA<br>KNUST",
+  "logoCommitteePlaceholder": "IT &amp; Media",
+  "madeForLine": "Made with love for Machele & Salash",
+  "assetCredits": [
+    {
+      "item": "Ambient sounds",
+      "by": "Placeholder pending recording",
+      "license": "To be confirmed"
+    },
+    {
+      "item": "Sound effects",
+      "by": "Placeholder pending recording",
+      "license": "To be confirmed"
+    },
+    {
+      "item": "3D assets",
+      "by": "Procedural geometry",
+      "license": "Original code"
+    }
+  ],
+  "builtWith": [
+    "Three.js",
+    "GSAP",
+    "Lenis",
+    "Vite"
+  ]
+}

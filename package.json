@@ -1,0 +1,11 @@
+{
+  "name": "malash-thank-you-experience",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["thank-you-experience"],
+  "scripts": {
+    "dev": "npm --workspace thank-you-experience run dev",
+    "build": "npm --workspace thank-you-experience run build",
+    "preview": "npm --workspace thank-you-experience run preview"
+  }
+}

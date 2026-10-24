@@ -1,0 +1,121 @@
+{
+  "themes": {
+    "default": "auto",
+    "dark": {
+      "sky": [
+        "#2a0a3a",
+        "#12031c",
+        "#4b1456",
+        "#c15ab0",
+        "#fbe9f7"
+      ]
+    },
+    "light": {
+      "sky": [
+        "#ffd9ec",
+        "#f0cdf3",
+        "#f6e4fb",
+        "#f6e4fb",
+        "#ffe9c2"
+      ]
+    },
+    "transitionSeconds": 1.6
+  },
+  "acts": [
+    {
+      "id": "home",
+      "duration": 0
+    },
+    {
+      "id": "letter",
+      "duration": 0
+    },
+    {
+      "id": "wishes",
+      "duration": 0
+    },
+    {
+      "id": "journey",
+      "duration": 0
+    },
+    {
+      "id": "names",
+      "duration": 0
+    },
+    {
+      "id": "farewell",
+      "duration": 0
+    }
+  ],
+  "features": {
+    "themeFromUrl": true,
+    "homeVariantFromUrl": true,
+    "homeVariants": {
+      "lantern": true,
+      "letter": true,
+      "bloom": false,
+      "horizon": false
+    },
+    "chapterRail": true,
+    "keyboardNavigation": true,
+    "autoPlay": true,
+    "wishCardMaker": true,
+    "keepsakeCard": true,
+    "shareButton": true,
+    "wishesSubmission": false,
+    "guestNameFromUrl": false
+  },
+  "malash": "src/core/malash.js",
+  "audio": {
+    "startOnFirstTap": true,
+    "allowMusic": false,
+    "masterVolume": 0.8,
+    "ambient": {},
+    "effects": {},
+    "narrationDefaultOn": true
+  },
+  "performance": {
+    "budgets": {
+      "mainJsGzipBytes": 220000,
+      "cssGzipBytes": 12000,
+      "desktopParticles": 520,
+      "lowTierParticles": 180
+    },
+    "bloomOnLowTier": false,
+    "glassOnLowTier": false,
+    "reducedMotionSupport": true,
+    "contextLossFallback": true,
+    "sharedGeometry": true
+  },
+  "accessibility": {
+    "minimumTapTargetPx": 44,
+    "reducedMotionFadeMs": 200,
+    "rtlCanvasText": true,
+    "letterOverlapCheck": true,
+    "keyboardNavigation": true
+  },
+  "palette": {
+    "plum": "#3a0d44",
+    "magentaPlum": "#7b2a86",
+    "lilac": "#d9a6e0",
+    "roseGlow": "#f2b6e3",
+    "white": "#ffffff"
+  },
+  "fonts": [
+    "Sacramento",
+    "Exo 2",
+    "Amiri",
+    "Aref Ruqaa"
+  ],
+  "navigation": {
+    "mode": "native-scroll",
+    "pageHeightApproxSvH": 700,
+    "lenis": "desktop-fine-pointer-only",
+    "touch": "native"
+  },
+  "share": {
+    "openGraphTitle": "A letter is waiting for you",
+    "openGraphDescription": "From the GMSA-KNUST family",
+    "showNames": false
+  }
+}
