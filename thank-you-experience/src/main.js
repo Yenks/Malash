@@ -161,6 +161,38 @@ function playGlassTick() {
 }
 
 /* ==========================================================================
+   TASK 5: SEVEN HIDDEN SECRETS REVEAL SYSTEM
+   ========================================================================== */
+const foundSecrets = new Set();
+window.__foundSecrets = foundSecrets;
+let secretToastTimer = null;
+
+function revealSecret(id) {
+  if (foundSecrets.has(id)) return;
+  foundSecrets.add(id);
+
+  let toast = $('#secrets-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'secrets-toast';
+    toast.className = 'secrets-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+  }
+
+  const text = (content.surprises?.counter || '{n} of 7 secrets found')
+    .replace('{n}', foundSecrets.size);
+  toast.textContent = text;
+  toast.classList.add('visible');
+
+  clearTimeout(secretToastTimer);
+  secretToastTimer = setTimeout(() => {
+    toast?.classList.remove('visible');
+  }, 3000);
+}
+
+/* ==========================================================================
    WAX SEAL PROCEDURAL TEXTURE
    ========================================================================== */
 function createWaxSealTexture() {
@@ -303,6 +335,12 @@ function home() {
             <span>${escapeHTML(state.sound ? content.home.soundOn : content.home.soundOff)}</span>
           </button>
         </div>
+        <div class="secret-heart-wrap">
+          <button type="button" class="secret-target secret-heart-btn secret-hint-pulse" id="secret-glass-heart" aria-label="Glass heart keepsake">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </button>
+          <div class="heart-tagline-pop" id="heart-tagline-pop">${escapeHTML(content.surprises?.heartTagline || '')}</div>
+        </div>
         <div class="scroll-cue" id="scroll-cue" hidden>
           <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></span>
           <span>${escapeHTML(content.home.scrollCue)}</span>
@@ -339,6 +377,14 @@ function letter() {
           <span class="egg-label">${escapeHTML(state.egg === 'done' ? 'Open letter' : content.letter.sealHint)}</span>
           <div class="egg-hold-hint" id="egg-hold-hint">Hold to open</div>
         </button>
+        <div class="egg-shards-container ${state.egg === 'done' ? 'revealed' : ''}" id="egg-shards-container">
+          <button type="button" class="secret-target egg-shard-btn secret-hint-pulse" data-shard="1" aria-label="Delicate pearl shard">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 18 12 4 18 16 10 20"/></svg>
+          </button>
+          <button type="button" class="secret-target egg-shard-btn secret-hint-pulse" data-shard="2" aria-label="Delicate glass shard">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="8 6 18 10 14 20 4 14"/></svg>
+          </button>
+        </div>
         <div class="overlap-status sr-only" aria-live="polite" id="layout-status"></div>
       </div>
     </section>
@@ -359,18 +405,42 @@ function wishes() {
           ${svg('heart')}
           <span class="count-text">0 of ${content.wishes.items.length} wishes read</span>
         </p>
-        <div class="wish-grid">
-          ${content.wishes.items.map((w, i) => `
-            <article class="wish-item">
-              <button class="carrier ${state.theme === 'light' ? 'kite' : 'lantern'}" data-wish="${i}" aria-expanded="${state.read.has(i)}" aria-label="${escapeHTML(content.ui.wishFrom.replace('{name}', w.from))}">
-                <span>${String(i + 1).padStart(2, '0')}</span>
-              </button>
-              <div class="wish-copy ${state.read.has(i) ? 'is-open' : ''}" id="wish-copy-${i}">
-                <p>${escapeHTML(w.text)}</p>
-                <small>${escapeHTML(w.from)}</small>
-              </div>
-            </article>
-          `).join('')}
+        <div class="wishes-constellation-container">
+          <button type="button" class="secret-target constellation-star secret-hint-pulse" data-star="1" aria-label="Faint glimmer 1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          <button type="button" class="secret-target constellation-star secret-hint-pulse" data-star="2" aria-label="Faint glimmer 2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          <button type="button" class="secret-target constellation-star secret-hint-pulse" data-star="3" aria-label="Faint glimmer 3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          <div class="constellation-overlay" id="constellation-overlay" aria-hidden="true">
+            <svg viewBox="0 0 400 120" style="width:100%;max-width:400px;height:auto;" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M40 80 L90 20 L140 80 L190 20 L240 80 L290 20 L340 80" stroke="#F2B6E3" stroke-dasharray="4 4"/>
+              <circle cx="40" cy="80" r="3" fill="#F4ECE1"/>
+              <circle cx="90" cy="20" r="3" fill="#F4ECE1"/>
+              <circle cx="140" cy="80" r="3" fill="#F4ECE1"/>
+              <circle cx="190" cy="20" r="3" fill="#F4ECE1"/>
+              <circle cx="240" cy="80" r="3" fill="#F4ECE1"/>
+              <circle cx="290" cy="20" r="3" fill="#F4ECE1"/>
+              <circle cx="340" cy="80" r="3" fill="#F4ECE1"/>
+            </svg>
+            <p class="constellation-text">${escapeHTML(content.surprises?.constellationLabel || "MALASH'26")}</p>
+          </div>
+          <div class="wish-grid">
+            ${content.wishes.items.map((w, i) => `
+              <article class="wish-item">
+                <button class="carrier ${state.theme === 'light' ? 'kite' : 'lantern'}" data-wish="${i}" aria-expanded="${state.read.has(i)}" aria-label="${escapeHTML(content.ui.wishFrom.replace('{name}', w.from))}">
+                  <span>${String(i + 1).padStart(2, '0')}</span>
+                </button>
+                <div class="wish-copy ${state.read.has(i) ? 'is-open' : ''}" id="wish-copy-${i}">
+                  <p>${escapeHTML(w.text)}</p>
+                  <small>${escapeHTML(w.from)}</small>
+                </div>
+              </article>
+            `).join('')}
+          </div>
         </div>
         <details class="all-wishes">
           <summary>${escapeHTML(content.wishes.allWishesLabel)}</summary>
@@ -451,6 +521,17 @@ function names() {
           <p class="dua-translation">${escapeHTML(content.names.duaTranslation)}</p>
           <small class="dua-source">${escapeHTML(content.names.duaSource)}</small>
         </article>
+
+        <div class="secret-crescent-wrap">
+          <button type="button" class="secret-target secret-crescent-btn secret-hint-pulse" id="secret-crescent" aria-label="Dawn crescent secret">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px;"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </button>
+          <div class="crescent-popover" id="crescent-popover" role="dialog" aria-label="Hidden dawn prayer">
+            <p class="crescent-pop-arabic" dir="rtl" lang="ar">${escapeHTML(content.surprises?.crescent?.arabic || '')}</p>
+            <p class="crescent-pop-translit">${escapeHTML(content.surprises?.crescent?.transliteration || '')}</p>
+            <p class="crescent-pop-transl">${escapeHTML(content.surprises?.crescent?.translation || '')}</p>
+          </div>
+        </div>
 
         <div class="ameen-section">
           <button class="action-button primary ameen-button" id="ameen-button">${escapeHTML(content.ameen.button)}</button>
@@ -619,12 +700,25 @@ function farewell() {
           <div class="logos">
             <img src="${credits.logos.association}" alt="${escapeHTML(credits.logoGmsaAlt)}" onerror="this.outerHTML='<span class=&quot;logo-placeholder&quot;>${credits.logoGmsaPlaceholder}</span>'">
             <img src="${credits.logos.committee}" alt="${escapeHTML(credits.logoCommitteeAlt)}" onerror="this.outerHTML='<span class=&quot;logo-placeholder committee-placeholder&quot;>${credits.logoCommitteePlaceholder}</span>'">
+            <button type="button" class="secret-target secret-seal-btn secret-hint-pulse" id="secret-it-seal" aria-label="IT & Media note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </button>
           </div>
           <h3>${escapeHTML(credits.heading)}</h3>
           <p>${escapeHTML(credits.subheading)}</p>
           <p>${escapeHTML(credits.madeForLine)}</p>
           <small>${credits.builtWith.map(escapeHTML).join(' · ')}</small>
+          <button type="button" class="secret-target secret-seal-btn secret-hint-pulse" id="secret-ec-seal" aria-label="EC Office note" style="margin-top: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          </button>
         </footer>
+
+        <section class="beyond-the-end" id="beyond-the-end">
+          <button type="button" class="secret-target beyond-tail-mark secret-hint-pulse" id="beyond-tail-btn" aria-label="Faint blessing mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:14px;height:14px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </button>
+          <p class="beyond-tail-text" id="beyond-tail-text" dir="rtl" lang="ar">${escapeHTML(content.surprises?.tailLine || 'Barakallahu lakuma')}</p>
+        </section>
       </div>
     </section>
   `;
@@ -1062,6 +1156,9 @@ function finishEgg(openModal = false) {
     if (label) label.textContent = 'Open letter';
   }
 
+  const shards = $('#egg-shards-container');
+  if (shards) shards.classList.add('revealed');
+
   if (leftShell && rightShell && innerEggLight) {
     gsap.set(leftShell.position, { x: -0.65, z: -0.2 });
     gsap.set(leftShell.rotation, { z: -0.5, x: 0.15 });
@@ -1430,6 +1527,108 @@ function bind() {
     });
   }
 
+  // ------------------------------------------------------------------------
+  // TASK 5: SEVEN HIDDEN SECRETS INTERACTIVITY
+  // ------------------------------------------------------------------------
+
+  // Secret 1: Constellation in Wishes
+  const tappedStars = new Set();
+  root.querySelectorAll('.constellation-star').forEach(star => {
+    star.addEventListener('click', () => {
+      const sId = star.dataset.star;
+      tappedStars.add(sId);
+      star.classList.add('active');
+      if (tappedStars.size === 3) {
+        const overlay = $('#constellation-overlay');
+        overlay?.classList.add('show');
+        revealSecret('constellation');
+        setTimeout(() => overlay?.classList.remove('show'), 3500);
+      }
+    });
+  });
+
+  // Secret 2: Heart Tagline
+  let heartHoldTimer = null;
+  const heartBtn = $('#secret-glass-heart');
+  const heartPop = $('#heart-tagline-pop');
+  const triggerHeartSecret = () => {
+    heartPop?.classList.add('show');
+    revealSecret('heart-tagline');
+    setTimeout(() => heartPop?.classList.remove('show'), 3000);
+  };
+  heartBtn?.addEventListener('pointerdown', () => {
+    heartHoldTimer = setTimeout(triggerHeartSecret, 400);
+  });
+  heartBtn?.addEventListener('pointerup', () => clearTimeout(heartHoldTimer));
+  heartBtn?.addEventListener('click', triggerHeartSecret);
+  heartBtn?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      triggerHeartSecret();
+    }
+  });
+
+  // Secret 3: Beyond the end
+  const tailBtn = $('#beyond-tail-btn');
+  const tailText = $('#beyond-tail-text');
+  const revealBeyond = () => {
+    tailText?.classList.add('revealed');
+    revealSecret('beyond-the-end');
+  };
+  tailBtn?.addEventListener('click', revealBeyond);
+
+  // Secret 4: Crescent in Names in Light
+  const crescentBtn = $('#secret-crescent');
+  const crescentPop = $('#crescent-popover');
+  crescentBtn?.addEventListener('click', () => {
+    crescentPop?.classList.toggle('show');
+    revealSecret('crescent');
+  });
+
+  // Secret 5: Egg shards
+  root.querySelectorAll('.egg-shard-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.add('glowing');
+      playGlassTick();
+      const ray = document.createElement('div');
+      ray.style.cssText = 'position:fixed;width:8px;height:8px;border-radius:50%;background:#F2B6E3;box-shadow:0 0 14px #F2B6E3;pointer-events:none;z-index:9999;';
+      const rect = btn.getBoundingClientRect();
+      ray.style.left = `${rect.left + rect.width / 2 - 4}px`;
+      ray.style.top = `${rect.top}px`;
+      document.body.appendChild(ray);
+      gsap.to(ray, { y: -70, opacity: 0, scale: 2, duration: 0.9, onComplete: () => ray.remove() });
+      revealSecret('egg-shards');
+    });
+  });
+
+  // Secret 6: EC Office Note
+  $('#secret-ec-seal')?.addEventListener('click', () => {
+    const ec = content.surprises?.ecNote;
+    if (ec) {
+      malashModal.open({
+        sourceElement: $('#secret-ec-seal'),
+        title: ec.title,
+        lines: [ec.body],
+        signature: ec.signature
+      });
+    }
+    revealSecret('ec-note');
+  });
+
+  // Secret 7: IT & Media Note
+  $('#secret-it-seal')?.addEventListener('click', () => {
+    const it = content.surprises?.itMediaNote;
+    if (it) {
+      malashModal.open({
+        sourceElement: $('#secret-it-seal'),
+        title: it.title,
+        lines: [it.body],
+        signature: it.signature
+      });
+    }
+    revealSecret('it-media-note');
+  });
+
   ScrollTrigger.refresh();
 }
 
@@ -1610,6 +1809,17 @@ function setupScroll() {
     },
     onEnterBack: () => { resizeRail(); }
   }));
+
+  // Secret 3: Beyond the end scroll reveal
+  ScrollTrigger.create({
+    id: 'secret-beyond-trigger',
+    trigger: '#beyond-the-end',
+    start: 'top 95%',
+    onEnter: () => {
+      $('#beyond-tail-text')?.classList.add('revealed');
+      revealSecret('beyond-the-end');
+    }
+  });
 
   if (!scrollEventsBound) {
     addEventListener('scroll', resizeRail, { passive: true });

@@ -282,5 +282,27 @@
     "save": "Save card",
     "share": "Share",
     "iosHint": "Press and hold the image to save it"
+  },
+  "surprises": {
+    "counter": "{n} of 7 secrets found",
+    "constellationLabel": "MALASH'26",
+    "heartTagline": "Hearts Once Apart, Now Closely Aligned",
+    "tailLine": "Barakallahu lakuma",
+    "crescent": {
+      "arabic": "DUMMY_ARABIC_TO_BE_PROVIDED_AND_VERIFIED",
+      "transliteration": "DUMMY",
+      "translation": "DUMMY: short dua translation",
+      "status": "PENDING_VERIFICATION"
+    },
+    "ecNote": {
+      "title": "A note from the EC Office",
+      "body": "DUMMY: Message from the Executive Council goes here.",
+      "signature": "The Executive Council, GMSA-KNUST"
+    },
+    "itMediaNote": {
+      "title": "A note from the IT & Media Committee",
+      "body": "DUMMY: Message from the IT and Media team goes here.",
+      "signature": "The IT & Media Committee, GMSA-KNUST"
+    }
   }
 }
