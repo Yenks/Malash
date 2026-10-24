@@ -18,12 +18,14 @@ const query = new URLSearchParams(location.search);
 const themes = ['light', 'dark'];
 const storedTheme = safeGet('malash-theme', 'auto');
 const defaultTheme = (new Date().getHours() >= 18 || new Date().getHours() < 6) ? 'dark' : 'light';
+const homeVariants = ['star', 'lantern', 'letter', 'bloom', 'horizon'];
+const requestedHome = query.get('home');
 const state = {
   theme: themes.includes(query.get('theme')) ? query.get('theme') : (themes.includes(storedTheme) ? storedTheme : defaultTheme),
   sound: safeGet('malash-sound', 'true') === 'true',
   narration: safeGet('malash-narration', 'true') === 'true',
   auto: false, egg: 'pending', names: 'pending', read: new Set(), started: false,
-  home: ['lantern', 'letter'].includes(query.get('home')) ? query.get('home') : (Math.random() < .5 ? 'lantern' : 'letter'),
+  home: homeVariants.includes(requestedHome) ? requestedHome : 'star',
 };
 
 const chapterIds = ['home', 'letter', 'wishes', 'journey', 'names', 'farewell'];
@@ -31,7 +33,7 @@ const chapterIcons = ['home', 'mail', 'heart', 'sparkles', 'moon-star', 'send'];
 
 let scene, camera, renderer, lenis, frame = 0, eggSequenceTl, holdTween, holdStartTime = 0, lastTapTime = 0, hintTimeout = null;
 let autoFrame = 0, autoVelocity = 0, autoTarget = 0, lastAuto = 0, scrollEventsBound = false, letterObserver, namesTimeline;
-let egg3dGroup, leftShell, rightShell, waxSealMesh, innerEggLight, eggShardsGroup, heartsGroup;
+let egg3dGroup, leftShell, rightShell, waxSealMesh, innerEggLight, eggShardsGroup, heartsGroup, heroHeartMesh;
 const root = $('#ui-root');
 const malashModal = new MalashModal();
 const darkSky = [MALASH.colors.dark.sky0, MALASH.colors.dark.sky30, MALASH.colors.dark.sky60, MALASH.colors.dark.sky85, MALASH.colors.dark.sky100];
@@ -264,12 +266,36 @@ function utilityPill() {
    ACT 0: HOME / BEGINNING
    ========================================================================== */
 function home() {
+  const isStar = state.home === 'star';
   return `
-    <section id="home" class="page home-page" data-page="0">
+    <section id="home" class="page home-page home-${escapeHTML(state.home)}" data-page="0">
+      ${isStar ? `
+        <div class="home-star-frame" id="home-star-frame" aria-hidden="true">
+          <svg class="home-star-svg" viewBox="0 0 100 100">
+            <path d="M 50 6 L 61 23 L 81 19 L 77 39 L 94 50 L 77 61 L 81 81 L 61 77 L 50 94 L 39 77 L 19 81 L 23 61 L 6 50 L 23 39 L 19 19 L 39 23 Z"/>
+          </svg>
+        </div>
+      ` : state.home === 'lantern' ? `
+        <div class="home-variant-frame home-lantern-frame" aria-hidden="true">
+          <span class="home-motif-icon">${svg('lantern')}</span>
+        </div>
+      ` : state.home === 'letter' ? `
+        <div class="home-variant-frame home-letter-frame" aria-hidden="true">
+          <span class="home-motif-icon">${svg('mail')}</span>
+        </div>
+      ` : state.home === 'bloom' ? `
+        <div class="home-variant-frame home-bloom-frame" aria-hidden="true">
+          <span class="home-motif-icon">${svg('sparkles')}</span>
+        </div>
+      ` : `
+        <div class="home-variant-frame home-horizon-frame" aria-hidden="true">
+          <span class="home-motif-icon">${svg('moon-star')}</span>
+        </div>
+      `}
       <div class="home-content">
         <p class="eyebrow">GMSA-KNUST presents</p>
         <h1>${escapeHTML(content.home.title)}</h1>
-        <p>${escapeHTML(content.home.subline)}</p>
+        <p class="home-subline">${escapeHTML(content.home.subline)}</p>
         <div class="home-actions">
           <button class="action-button primary" id="enter-button">${escapeHTML(content.home.enter)}</button>
           <button class="sound-chip" id="home-sound" aria-label="${escapeHTML(state.sound ? content.home.soundOn : content.home.soundOff)}">
@@ -515,6 +541,54 @@ function init3d() {
     glow.position.set(-2, 3, 5);
     scene.add(glow);
 
+    // 3D floating glass heart centered over signature homepage
+    const heroShape = new THREE.Shape();
+    heroShape.moveTo(0, -0.2);
+    heroShape.bezierCurveTo(-0.24, -0.01, -0.48, 0.18, -0.46, 0.42);
+    heroShape.bezierCurveTo(-0.44, 0.65, -0.16, 0.68, 0, 0.44);
+    heroShape.bezierCurveTo(0.16, 0.68, 0.44, 0.65, 0.46, 0.42);
+    heroShape.bezierCurveTo(0.48, 0.18, 0.24, -0.01, 0, -0.2);
+    const heroGeo = new THREE.ExtrudeGeometry(heroShape, {
+      depth: 0.14,
+      bevelEnabled: true,
+      bevelSegments: 3,
+      steps: 1,
+      bevelSize: 0.04,
+      bevelThickness: 0.04
+    });
+    heroGeo.center();
+
+    const isLowTier = navigator.deviceMemory && navigator.deviceMemory <= 4;
+    const glassHeartMat = isLowTier
+      ? new THREE.MeshStandardMaterial({
+          color: 0xF2B6E3,
+          roughness: 0.25,
+          metalness: 0.1,
+          transparent: true,
+          opacity: 0.8,
+          emissive: 0x6E1450,
+          emissiveIntensity: 0.2
+        })
+      : new THREE.MeshPhysicalMaterial({
+          color: 0xF4ECE1,
+          roughness: 0.08,
+          metalness: 0.04,
+          transmission: 0.94,
+          thickness: 1.3,
+          ior: 1.46,
+          attenuationColor: new THREE.Color(0xF2B6E3),
+          attenuationDistance: 1.2,
+          clearcoat: 1.0,
+          clearcoatRoughness: 0.06,
+          emissive: 0x7B4FBF,
+          emissiveIntensity: 0.1,
+          transparent: true
+        });
+
+    heroHeartMesh = new THREE.Mesh(heroGeo, glassHeartMat);
+    heroHeartMesh.scale.set(1.4, 1.4, 1.4);
+    scene.add(heroHeartMesh);
+
     // Floating hearts with strict keep-out zone: margins (|x| > 3.6) and behind content (z <= -4)
     const shape = new THREE.Shape();
     shape.moveTo(0, -0.16);
@@ -666,6 +740,33 @@ function init3d() {
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); fallback(); });
   } catch {
     fallback();
+  }
+}
+
+function updateHeroHeartPosition3D(t = 0) {
+  const frameEl = $('#home-star-frame') || $('#home');
+  if (!frameEl || !camera || !heroHeartMesh) return;
+  const rect = frameEl.getBoundingClientRect();
+
+  if (rect.bottom < -100 || rect.top > innerHeight + 100) {
+    heroHeartMesh.visible = false;
+    return;
+  }
+  heroHeartMesh.visible = true;
+
+  const cx = ((rect.left + rect.width / 2) / innerWidth) * 2 - 1;
+  const cy = -((rect.top + rect.height / 2) / innerHeight) * 2 + 1;
+
+  const dist = 3.6;
+  const v = new THREE.Vector3(cx, cy, 0.5);
+  v.unproject(camera);
+  v.sub(camera.position).normalize();
+  heroHeartMesh.position.copy(camera.position.clone().add(v.multiplyScalar(dist)));
+
+  if (!prefersReducedMotion) {
+    heroHeartMesh.rotation.y = Math.sin(t * 0.7) * 0.18;
+    heroHeartMesh.rotation.z = Math.cos(t * 0.5) * 0.08;
+    heroHeartMesh.rotation.x = Math.sin(t * 0.4) * 0.06;
   }
 }
 
@@ -1181,7 +1282,7 @@ function restart() {
     state.read.clear();
     autoVelocity = 0;
     autoTarget = 0;
-    state.home = ['lantern', 'letter'].includes(query.get('home')) ? query.get('home') : ['lantern', 'letter'][Math.floor(Math.random() * 2)];
+    state.home = homeVariants.includes(query.get('home')) ? query.get('home') : 'star';
     letterObserver?.disconnect();
     ScrollTrigger.getAll().forEach(t => t.kill());
 
@@ -1436,14 +1537,173 @@ function saveKeepsake() {
   drawCard();
 }
 
+
+/* ==========================================================================
+   BISMILLAH STAR PRELOADER (TASK 3)
+   ========================================================================== */
+function initPreloader() {
+  const preloader = $('#preloader');
+  if (!preloader) return;
+
+  const starPath = $('#preloader-star-path');
+  const dimBismillah = $('#bismillah-dim');
+  const brightBismillah = $('#bismillah-bright');
+  const percentEl = $('#preloader-percent');
+  const continueBtn = $('#preloader-continue');
+  const starWrap = $('.preloader-star-wrap');
+
+  const bismillahStr = content.arrival.basmalah;
+  if (dimBismillah) dimBismillah.textContent = bismillahStr;
+  if (brightBismillah) brightBismillah.textContent = bismillahStr;
+
+  let fontsReady = false;
+  let sceneReady = false;
+  let finished = false;
+
+  document.fonts.ready.then(() => {
+    fontsReady = true;
+  }).catch(() => {
+    fontsReady = true;
+  });
+
+  window.__sceneReady = () => { sceneReady = true; };
+
+  const MIN_DURATION = 1800; // ms
+  const startTime = performance.now();
+  let currentProgress = 0;
+  let animFrameId = null;
+
+  function finish(immediate = false) {
+    if (finished) return;
+    finished = true;
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    clearTimeout(safetyTimer);
+
+    if (percentEl) percentEl.textContent = '100%';
+    if (starPath) starPath.style.strokeDashoffset = '0';
+    if (brightBismillah) brightBismillah.style.clipPath = 'inset(0 0 0 0%)';
+
+    if (immediate) {
+      preloader.classList.add('dissolved');
+      preloader.style.display = 'none';
+      preloader.style.opacity = '0';
+      return;
+    }
+
+    if (prefersReducedMotion) {
+      gsap.to(preloader, {
+        opacity: 0,
+        duration: duration(MALASH.motion.reducedFade) / 1000,
+        ease: 'power2.out',
+        onComplete: () => {
+          preloader.classList.add('dissolved');
+          preloader.style.display = 'none';
+        }
+      });
+      return;
+    }
+
+    // Soft glow pulse on star
+    if (starWrap) {
+      gsap.to(starWrap, {
+        scale: 1.06,
+        duration: 0.35,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power2.out'
+      });
+    }
+
+    // Bismillah gently lifts and settles
+    const bWrap = $('.bismillah-wrap');
+    if (bWrap) {
+      gsap.to(bWrap, {
+        y: -6,
+        duration: 0.35,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power2.inOut'
+      });
+    }
+
+    // Preloader dissolves into homepage
+    gsap.to(preloader, {
+      opacity: 0,
+      duration: duration(MALASH.motion.slow) / 1000,
+      delay: 0.4,
+      ease: MALASH.ease.cinematic,
+      onComplete: () => {
+        preloader.classList.add('dissolved');
+        preloader.style.display = 'none';
+      }
+    });
+  }
+
+  // Safety fallback after 4.5s
+  const onScroll = () => {
+    if (window.scrollY > 20) {
+      finish(true);
+      window.removeEventListener('scroll', onScroll);
+    }
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  const safetyTimer = setTimeout(() => {
+    if (!finished && continueBtn) {
+      continueBtn.hidden = false;
+      continueBtn.removeAttribute('hidden');
+      continueBtn.onclick = () => finish(true);
+    }
+  }, 4500);
+
+  if (prefersReducedMotion) {
+    finish(true);
+    return;
+  }
+
+  function tickPreloader(now) {
+    if (finished) return;
+    const elapsed = now - startTime;
+    const timeProgress = Math.min(1, elapsed / MIN_DURATION);
+    const assetsReady = fontsReady && sceneReady;
+    const targetProgress = assetsReady ? timeProgress : Math.min(0.85, timeProgress);
+
+    currentProgress += (targetProgress - currentProgress) * 0.18;
+    if (currentProgress < targetProgress && targetProgress - currentProgress < 0.005) {
+      currentProgress = targetProgress;
+    }
+
+    const pct = Math.min(100, Math.round(currentProgress * 100));
+    if (percentEl) percentEl.textContent = `${pct}%`;
+
+    const dashOffset = (100 - currentProgress * 100).toFixed(1);
+    if (starPath) starPath.style.strokeDashoffset = `${dashOffset}`;
+
+    // Reveal from right to left: inset(0 0 0 calc((1 - p) * 100%))
+    const leftClip = ((1 - currentProgress) * 100).toFixed(1);
+    if (brightBismillah) brightBismillah.style.clipPath = `inset(0 0 0 ${leftClip}%)`;
+
+    if (timeProgress >= 1 && assetsReady && currentProgress >= 0.99) {
+      finish(false);
+      return;
+    }
+
+    animFrameId = requestAnimationFrame(tickPreloader);
+  }
+
+  animFrameId = requestAnimationFrame(tickPreloader);
+}
+
 async function init() {
   document.title = content.meta.pageTitle;
+  initPreloader();
   $('meta[name="description"]')?.setAttribute('content', content.meta.description);
   $('meta[property="og:title"]')?.setAttribute('content', content.meta.ogTitle);
   $('meta[property="og:description"]')?.setAttribute('content', content.meta.ogDescription);
   render();
   applySky(0);
   init3d();
+  window.__sceneReady?.();
   setupScroll();
   checkLetterLayout();
   letterObserver = new ResizeObserver(checkLetterLayout);
