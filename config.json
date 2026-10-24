@@ -114,6 +114,7 @@
     "touch": "native"
   },
   "share": {
+    "url": "https://malash.vercel.app",
     "openGraphTitle": "A letter is waiting for you",
     "openGraphDescription": "From the GMSA-KNUST family",
     "showNames": false

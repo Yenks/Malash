@@ -1828,3 +1828,296 @@ html.modal-open, body.modal-open {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   TASK 5: SEVEN HIDDEN SECRETS & REVEALS
+   ========================================================================== */
+@keyframes secret-faint-pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.35; }
+}
+
+.secret-target {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  padding: 0;
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  transition: opacity var(--duration-fast) ease, transform var(--duration-fast) ease;
+}
+
+.secret-target:focus-visible {
+  outline: 2px dashed var(--lavender);
+  outline-offset: 4px;
+}
+
+.secret-hint-pulse {
+  animation: secret-faint-pulse 4.5s ease-in-out infinite;
+}
+
+.secret-target:hover {
+  opacity: 0.75 !important;
+}
+
+/* Secrets Toast Pill */
+.secrets-toast {
+  position: fixed;
+  bottom: calc(var(--space-4) + 16px);
+  left: 50%;
+  transform: translateX(-50%) translateY(24px);
+  background: var(--plum);
+  color: var(--ivory);
+  border: 1px solid var(--surface-border);
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 24px rgba(18, 3, 28, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+}
+:root[data-theme="light"] .secrets-toast {
+  background: var(--ivory);
+  color: var(--plum);
+  border-color: rgba(110, 20, 80, 0.3);
+  box-shadow: 0 6px 24px rgba(110, 20, 80, 0.2);
+}
+.secrets-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Constellation in Wishes */
+.wishes-constellation-container {
+  position: relative;
+  width: 100%;
+}
+.constellation-star {
+  position: absolute;
+  z-index: 5;
+}
+.constellation-star[data-star="1"] { top: 12px; left: 8%; }
+.constellation-star[data-star="2"] { top: 36px; right: 10%; }
+.constellation-star[data-star="3"] { bottom: 12px; left: 45%; }
+
+.constellation-star svg {
+  width: 12px;
+  height: 12px;
+  color: var(--lavender);
+  filter: drop-shadow(0 0 4px var(--rose));
+  transition: all 0.3s ease;
+}
+:root[data-theme="light"] .constellation-star svg {
+  color: var(--plum);
+  filter: drop-shadow(0 0 4px var(--lavender));
+}
+.constellation-star.active svg {
+  opacity: 1;
+  transform: scale(1.4);
+  color: var(--rose);
+}
+
+.constellation-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.constellation-overlay.show {
+  opacity: 1;
+}
+.constellation-text {
+  font-family: Sacramento, cursive;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  color: var(--rose);
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 12px rgba(242, 182, 227, 0.5);
+  margin-top: 10px;
+}
+:root[data-theme="light"] .constellation-text {
+  color: var(--plum);
+  text-shadow: none;
+}
+
+/* Heart Tagline Secret */
+.secret-heart-wrap {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  margin: var(--space-2) auto 0;
+}
+.secret-heart-btn {
+  color: var(--rose);
+}
+:root[data-theme="light"] .secret-heart-btn {
+  color: var(--plum);
+}
+.heart-tagline-pop {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  background: var(--surface-flat);
+  border: 1px solid var(--surface-border);
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-xs);
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(18, 3, 28, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+.heart-tagline-pop.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-12px);
+}
+
+/* Beyond the end section */
+.beyond-the-end {
+  padding: var(--space-4) var(--space-2) calc(var(--space-4) + 40px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+}
+.beyond-tail-mark {
+  color: var(--lavender);
+  margin-bottom: var(--space-1);
+}
+:root[data-theme="light"] .beyond-tail-mark {
+  color: var(--plum);
+}
+.beyond-tail-text {
+  font-family: 'Amiri', serif;
+  font-size: 1.8rem;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.beyond-tail-text.revealed {
+  opacity: 1;
+}
+
+/* Crescent Secret in Names in Light */
+.secret-crescent-wrap {
+  display: inline-flex;
+  position: relative;
+  margin: var(--space-2) 0;
+}
+.secret-crescent-btn {
+  color: var(--lavender);
+}
+:root[data-theme="light"] .secret-crescent-btn {
+  color: var(--plum);
+}
+.crescent-popover {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: var(--surface-flat);
+  border: 1px solid var(--surface-border);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  max-width: 320px;
+  width: max-content;
+  text-align: center;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 6px 20px rgba(18, 3, 28, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+.crescent-popover.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(12px);
+}
+.crescent-pop-arabic {
+  font-family: 'Amiri', serif;
+  font-size: var(--type-sm);
+  color: var(--rose);
+  margin-bottom: 4px;
+}
+:root[data-theme="light"] .crescent-pop-arabic {
+  color: var(--plum);
+}
+.crescent-pop-translit {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.crescent-pop-transl {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Egg Shards */
+.egg-shards-container {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+  min-height: 44px;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.egg-shards-container.revealed {
+  opacity: 1;
+}
+.egg-shard-btn {
+  color: var(--lavender);
+  transition: all 0.3s ease;
+}
+.egg-shard-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.egg-shard-btn.glowing {
+  filter: drop-shadow(0 0 10px var(--rose)) brightness(1.8);
+  transform: scale(1.2);
+}
+
+/* EC and IT & Media seals in Credits */
+.secret-seal-btn {
+  color: var(--lavender);
+  opacity: 0.4;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+:root[data-theme="light"] .secret-seal-btn {
+  color: var(--plum);
+}
+.secret-seal-btn svg {
+  width: 16px;
+  height: 16px;
+}

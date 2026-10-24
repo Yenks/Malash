@@ -9,7 +9,8 @@
     "dev": "npm --workspace thank-you-experience run dev",
     "build": "npm --workspace thank-you-experience run build",
     "preview": "npm --workspace thank-you-experience run preview",
-    "smoke": "playwright test tests/smoke.spec.js"
+    "smoke": "playwright test tests/smoke.spec.js",
+    "generate-assets": "node scripts/generate-assets.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1"
