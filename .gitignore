@@ -1,3 +1,5 @@
 **/node_modules/
 **/dist/
 thank-you-experience/.agents/skills/
+test-results/
+.playwright/

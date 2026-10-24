@@ -2,10 +2,16 @@
   "name": "malash-thank-you-experience",
   "private": true,
   "version": "1.0.0",
-  "workspaces": ["thank-you-experience"],
+  "workspaces": [
+    "thank-you-experience"
+  ],
   "scripts": {
     "dev": "npm --workspace thank-you-experience run dev",
     "build": "npm --workspace thank-you-experience run build",
-    "preview": "npm --workspace thank-you-experience run preview"
+    "preview": "npm --workspace thank-you-experience run preview",
+    "smoke": "playwright test tests/smoke.spec.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
   }
 }
