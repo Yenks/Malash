@@ -45,7 +45,7 @@ test.describe('Smoke tests - baseline and core experience', () => {
     await page.locator('#letter').scrollIntoViewIfNeeded();
     const eggButton = page.locator('#egg-button');
     await expect(eggButton).toBeVisible();
-    await eggButton.click();
+    await eggButton.press('Enter');
 
     // Verify letter opens
     const card = page.locator('#letter-card, .modal-card');
