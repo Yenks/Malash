@@ -1,3 +1,4 @@
+[hidden] { display: none !important; }
 /* ==========================================================================
    MALASH DESIGN SYSTEM & CORE STYLES (TASK 2 REBUILD)
    Quiet luxury, 8px spacing, centered layouts, contrast >= 4.5:1
@@ -449,8 +450,64 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
    ACT 0: HOME / BEGINNING
    ========================================================================== */
 .home-page {
+  position: relative;
   overflow: hidden;
   min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-star-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(260px, 44vw, 420px);
+  height: clamp(260px, 44vw, 420px);
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-star-svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--rose);
+  stroke-width: 1.2;
+  opacity: 0.28;
+  filter: drop-shadow(0 0 16px rgba(242, 182, 227, 0.25));
+  transform-origin: center;
+  animation: starRotate 90s linear infinite;
+}
+.home-variant-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(220px, 36vw, 360px);
+  height: clamp(220px, 36vw, 360px);
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.2;
+}
+.home-motif-icon svg {
+  width: 96px;
+  height: 96px;
+  stroke: var(--rose);
+}
+@keyframes starRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-star-svg {
+    animation: none;
+  }
 }
 .home-content {
   width: min(58ch, 100%);
@@ -1284,5 +1341,123 @@ html.modal-open, body.modal-open {
     animation-duration: var(--dur-reduced) !important;
     animation-iteration-count: 1 !important;
     transition-duration: var(--dur-reduced) !important;
+  }
+}
+
+
+/* ==========================================================================
+   ACT 0: BISMILLAH STAR PRELOADER (TASK 3)
+   ========================================================================== */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background-color: #12031C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  transition: opacity var(--dur-slow) var(--css-ease-standard), visibility var(--dur-slow);
+}
+
+.preloader.dissolved {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.preloader-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+
+.preloader-star-wrap {
+  position: relative;
+  width: clamp(140px, 28vw, 220px);
+  height: clamp(140px, 28vw, 220px);
+  margin-bottom: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preloader-star-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 16px rgba(242, 182, 227, 0.4));
+}
+
+.preloader-star-path {
+  fill: none;
+  stroke: var(--rose);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 120ms linear;
+}
+
+.bismillah-wrap {
+  position: relative;
+  display: inline-block;
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+  user-select: none;
+}
+
+.bismillah-text {
+  font-family: 'Aref Ruqaa', serif;
+  font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.5rem);
+  line-height: 1.6;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.bismillah-dim {
+  color: rgba(244, 236, 225, 0.2);
+}
+
+.bismillah-bright {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: #F4ECE1;
+  clip-path: inset(0 0 0 100%);
+  text-shadow: 0 0 24px rgba(242, 182, 227, 0.5);
+  transition: clip-path 120ms linear;
+}
+
+.preloader-percent {
+  font-family: 'Exo 2', sans-serif;
+  font-size: var(--type-xs);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lavender);
+  margin: var(--space-2) 0 0 0;
+  min-height: 1.5em;
+}
+
+.preloader-continue {
+  margin-top: var(--space-3);
+  font-size: var(--type-xs);
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader-star-path,
+  .bismillah-bright {
+    transition: none;
   }
 }
