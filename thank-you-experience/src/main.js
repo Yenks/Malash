@@ -25,10 +25,13 @@ const state = {
   auto: false, egg: 'pending', names: 'pending', read: new Set(), started: false,
   home: ['lantern', 'letter'].includes(query.get('home')) ? query.get('home') : (Math.random() < .5 ? 'lantern' : 'letter'),
 };
+
 const chapterIds = ['home', 'letter', 'wishes', 'journey', 'names', 'farewell'];
+const chapterIcons = ['home', 'mail', 'heart', 'sparkles', 'moon-star', 'send'];
+
 let scene, camera, renderer, lenis, frame = 0, eggSequenceTl, holdTween, holdStartTime = 0, lastTapTime = 0, hintTimeout = null;
 let autoFrame = 0, autoVelocity = 0, autoTarget = 0, lastAuto = 0, scrollEventsBound = false, letterObserver, namesTimeline;
-let egg3dGroup, leftShell, rightShell, waxSealMesh, innerEggLight, eggShardsGroup;
+let egg3dGroup, leftShell, rightShell, waxSealMesh, innerEggLight, eggShardsGroup, heartsGroup;
 const root = $('#ui-root');
 const malashModal = new MalashModal();
 const darkSky = [MALASH.colors.dark.sky0, MALASH.colors.dark.sky30, MALASH.colors.dark.sky60, MALASH.colors.dark.sky85, MALASH.colors.dark.sky100];
@@ -156,7 +159,7 @@ function playGlassTick() {
 }
 
 /* ==========================================================================
-   WAX SEAL PROCEDURAL TEXTURE (Plum wax, crescent & heart emboss)
+   WAX SEAL PROCEDURAL TEXTURE
    ========================================================================== */
 function createWaxSealTexture() {
   const canvas = document.createElement('canvas');
@@ -196,45 +199,301 @@ function createWaxSealTexture() {
 
 function svg(name) {
   const p = {
-    sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>',
-    moon:'<path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/>',
-    sound:'<path d="M11 5 6 9H3v6h3l5 4V5Zm4 4a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/>',
-    mute:'<path d="M11 5 6 9H3v6h3l5 4V5Zm5 4 5 6m0-6-5 6"/>',
-    voice:'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0m-7 7v5m-4 0h8"/>',
-    play:'<path d="m8 5 12 7-12 7V5Z"/>', pause:'<path d="M8 5v14m8-14v14"/>',
-    restart:'<path d="M3 12a9 9 0 1 0 2.64-6.36L3 8m0-5v5h5"/>',
-    close:'<path d="m18 6-12 12M6 6l12 12"/>',
-    chapter:'<circle cx="12" cy="12" r="7"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>',
+    moon: '<path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/>',
+    sound: '<path d="M11 5 6 9H3v6h3l5 4V5Zm4 4a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/>',
+    mute: '<path d="M11 5 6 9H3v6h3l5 4V5Zm5 4 5 6m0-6-5 6"/>',
+    voice: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0m-7 7v5m-4 0h8"/>',
+    play: '<path d="m8 5 12 7-12 7V5Z"/>',
+    pause: '<path d="M8 5v14m8-14v14"/>',
+    restart: '<path d="M3 12a9 9 0 1 0 2.64-6.36L3 8m0-5v5h5"/>',
+    close: '<path d="m18 6-12 12M6 6l12 12"/>',
+    menu: '<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+    home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    sparkles: '<path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>',
+    'moon-star': '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M19 3v4"/><path d="M21 5h-4"/>',
+    'hand-heart': '<path d="M11 14h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 16"/><path d="m7 20 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.8-2.8L15 13"/><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    send: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>'
   };
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p[name]}</svg>`;
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p[name] || p.sparkles}</svg>`;
 }
+
 function iconButton(id, label, icon, pressed) {
   return `<button class="icon-button" id="${id}" aria-label="${escapeHTML(label)}" title="${escapeHTML(label)}" ${pressed == null ? '' : `aria-pressed="${pressed}"`}>${svg(icon)}</button>`;
 }
-function hud() {
-  return `<header class="hud"><a class="brand" href="#home" aria-label="GMSA-KNUST home">GMSA-KNUST</a><nav class="chapter-rail" aria-label="Chapters">${chapterIds.map((id, i) => `<a href="#${id}" data-chapter="${id}" aria-label="${content.chapters[i]}" title="${content.chapters[i]}">${svg('chapter')}<span class="sr-only">${escapeHTML(content.chapters[i])}</span></a>`).join('')}</nav><div class="controls">${iconButton('sound-toggle', state.sound ? content.home.soundOn : content.home.soundOff, state.sound ? 'sound' : 'mute', state.sound)}${iconButton('narration-toggle', state.narration ? content.ui.narrationOn : content.ui.narrationOff, 'voice', state.narration)}${iconButton('theme-toggle', content.ui.themeToggle, state.theme === 'dark' ? 'sun' : 'moon')}${iconButton('auto-toggle', state.auto ? content.ui.pause : content.ui.autoPlay, state.auto ? 'pause' : 'play', state.auto)}${iconButton('restart', content.ui.restart, 'restart')}</div></header>`;
-}
-function home() {
-  const isLetter = state.home === 'letter';
-  return `<section id="home" class="page home-page home-${state.home}" data-page="0"><div class="home-art" aria-hidden="true">${isLetter ? '<div class="home-envelope"><span></span><i></i></div>' : '<div class="home-lantern"></div>'}<span class="glass-heart heart-a"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-4.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.5-8 11-8 11Z"/></svg></span><span class="glass-heart heart-b"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-4.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.5-8 11-8 11Z"/></svg></span></div><div class="home-content"><p class="eyebrow">GMSA-KNUST presents</p><h1>${escapeHTML(content.home.title)}</h1><p>${escapeHTML(content.home.subline)}</p><div class="home-actions"><button class="action-button primary" id="enter-button">${escapeHTML(content.home.enter)}</button><button class="sound-chip" id="home-sound" aria-label="${escapeHTML(state.sound ? content.home.soundOn : content.home.soundOff)}">${svg(state.sound ? 'sound' : 'mute')}<span>${escapeHTML(state.sound ? content.home.soundOn : content.home.soundOff)}</span></button></div><div class="scroll-cue" id="scroll-cue" hidden><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></span><span>${escapeHTML(content.home.scrollCue)}</span></div></div></section>`;
-}
-function letter() {
-  return `<section id="letter" class="page letter-page" data-page="1"><div class="act-wrap letter-wrap"><p class="eyebrow">${escapeHTML(content.ui.letterEyebrow)}</p><p class="nameplate" id="letter-name">${escapeHTML(content.letter.addressee)}</p><p class="greeting-header">${escapeHTML(content.letter.greetingHeader)}</p><button class="egg ${state.egg === 'done' ? 'cracked' : ''}" id="egg-button" aria-label="${escapeHTML(state.egg === 'done' ? 'Open letter' : content.letter.sealHint)}" aria-expanded="${state.egg === 'done'}"><svg class="egg-progress-ring" viewBox="0 0 160 210" aria-hidden="true"><ellipse cx="80" cy="105" rx="74" ry="98" pathLength="100"/></svg><span class="egg-shard"></span><span class="egg-shard"></span><span class="egg-shard"></span><span class="egg-shard"></span><span class="egg-shard"></span><span class="egg-shard"></span><span class="egg-shard"></span><span class="egg-core"></span><span class="egg-ring" aria-hidden="true"></span><span class="egg-label">${escapeHTML(state.egg === 'done' ? 'Open letter' : content.letter.sealHint)}</span><div class="egg-hold-hint" id="egg-hold-hint">Hold to open</div></button><div class="overlap-status sr-only" aria-live="polite" id="layout-status"></div></div></section>`;
-}
-function wishes() {
-  return `<section id="wishes" class="page wishes-page" data-page="2"><div class="act-wrap"><p class="eyebrow">${escapeHTML(content.ui.wishesEyebrow)}</p><h2>${escapeHTML(content.wishes.sectionTitle)}</h2><p class="hint">${escapeHTML(content.wishes.tapHint)}</p><p class="read-count" id="read-count" aria-live="polite">${svg('chapter')}<span class="count-text">0 of ${content.wishes.items.length} wishes read</span></p><div class="wish-grid">${content.wishes.items.map((w, i) => `<article class="wish-item"><button class="carrier ${state.theme === 'light' ? 'kite' : 'lantern'}" data-wish="${i}" aria-expanded="${state.read.has(i)}" aria-label="${escapeHTML(content.ui.wishFrom.replace('{name}', w.from))}"><span>${String(i + 1).padStart(2, '0')}</span></button><div class="wish-copy ${state.read.has(i) ? 'is-open' : ''}" id="wish-copy-${i}"><p>${escapeHTML(w.text)}</p><small>${escapeHTML(w.from)}</small></div></article>`).join('')}</div><details class="all-wishes"><summary>${escapeHTML(content.wishes.allWishesLabel)}</summary><ol>${content.wishes.items.map(w => `<li><q>${escapeHTML(w.text)}</q> <span>${escapeHTML(w.from)}</span></li>`).join('')}</ol></details></div></section>`;
-}
-function journey() {
-  return `<section id="journey" class="page journey-page" data-page="3"><div class="act-wrap"><p class="eyebrow">${escapeHTML(content.journey.title)}</p><h2>${escapeHTML(content.ui.journeyHeading)}</h2><div class="journey-line">${content.journey.events.map(e => `<article class="event-card"><div class="arch" aria-hidden="true"></div><h3>${escapeHTML(e.name)}</h3><p>${escapeHTML(e.date)}</p></article>`).join('')}</div><p class="journey-quote">${escapeHTML(content.couple.journeyLine)}</p></div></section>`;
-}
-function names() {
-  return `<section id="names" class="page names-page" data-page="4"><div class="act-wrap names-wrap"><p class="eyebrow">${escapeHTML(content.names.lead)}</p><div class="name-animation"><p class="script-name" data-name-line>${escapeHTML(content.couple.groomShort)}</p><p class="ampersand">&amp;</p><p class="script-name" data-name-line>${escapeHTML(content.couple.brideShort)}</p><p class="merged-name">${escapeHTML(content.couple.merged)}</p><div class="star-pattern" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M50 4 61 39 96 50 61 61 50 96 39 61 4 50 39 39Z M50 17 57 43 83 50 57 57 50 83 43 57 17 50 43 43Z"/></svg></div></div><article class="verse-card"><p class="verse-ref">${escapeHTML(content.names.verseReference)}</p><p class="arabic verse-ar" lang="ar" dir="rtl">${content.names.verseArabic}</p><p>${escapeHTML(content.names.verseTranslation)}</p><hr><p class="arabic dua-ar" lang="ar" dir="rtl">${content.names.duaArabic}</p><p>${escapeHTML(content.names.duaTransliteration)}</p><p>${escapeHTML(content.names.duaTranslation)}</p><small>${escapeHTML(content.names.duaSource)}</small></article><div class="ameen"><button class="action-button" id="ameen-button">${escapeHTML(content.ameen.button)}</button><span>${escapeHTML(content.ameen.hint)}</span><i id="ameen-light" aria-hidden="true"></i></div></div></section>`;
-}
-function farewell() {
-  return `<section id="farewell" class="page farewell-page" data-page="5"><div class="act-wrap farewell-wrap"><p class="eyebrow">${escapeHTML(content.farewell.closingLine)}</p><h2 class="farewell-title">Machele <span>&amp;</span> Salash</h2><section class="card-maker"><h3>${escapeHTML(content.wishCard.title)}</h3><label>${escapeHTML(content.wishCard.namePlaceholder)}<input id="card-name" maxlength="30" autocomplete="name" /></label><label>${escapeHTML(content.wishCard.wishPlaceholder)}<textarea id="card-wish" maxlength="140" rows="3"></textarea></label><div class="card-actions"><button class="action-button primary" id="create-card">${escapeHTML(content.wishCard.create)}</button><button class="action-button" id="save-card" disabled>${escapeHTML(content.wishCard.save)}</button><button class="action-button" id="share-card" disabled>${escapeHTML(content.wishCard.share)}</button></div><p class="card-tip">${escapeHTML(content.wishCard.tip)}</p><canvas id="wish-card-canvas" width="1080" height="1350" aria-label="Wish card preview"></canvas></section><div class="farewell-actions"><button class="action-button" id="share-link">${escapeHTML(content.farewell.shareLabel)}</button><button class="action-button primary" id="keepsake">${escapeHTML(content.keepsake.buttonLabel)}</button></div><footer class="credits-footer"><div class="logos"><img src="${credits.logos.association}" alt="${escapeHTML(credits.logoGmsaAlt)}" onerror="this.outerHTML='<span class=&quot;logo-placeholder&quot;>${credits.logoGmsaPlaceholder}</span>'"><img src="${credits.logos.committee}" alt="${escapeHTML(credits.logoCommitteeAlt)}" onerror="this.outerHTML='<span class=&quot;logo-placeholder committee-placeholder&quot;>${credits.logoCommitteePlaceholder}</span>'"></div><h3>${escapeHTML(credits.heading)}</h3><p>${escapeHTML(credits.subheading)}</p><p>${escapeHTML(credits.madeForLine)}</p><small>${credits.builtWith.map(escapeHTML).join(' · ')}</small></footer></div></section>`;
-}
-function render() { root.innerHTML = hud() + home() + letter() + wishes() + journey() + names() + farewell(); bind(); }
 
+/* ==========================================================================
+   NAV DOCK & TOP UTILITY PILL (PART E)
+   ========================================================================== */
+function navDock() {
+  return `
+    <nav class="chapter-dock chapter-rail" aria-label="Chapter navigation">
+      <div class="dock-track" aria-hidden="true">
+        <div class="dock-progress-fill" id="dock-progress"></div>
+      </div>
+      <div class="dock-pill">
+        <div class="dock-active-indicator" id="dock-indicator" aria-hidden="true"></div>
+        ${chapterIds.map((id, i) => `
+          <a href="#${id}" data-chapter="${id}" data-index="${i}" class="dock-item ${i === 0 ? 'active' : ''}" aria-label="${escapeHTML(content.chapters[i])}" title="${escapeHTML(content.chapters[i])}">
+            <span class="dock-icon">${svg(chapterIcons[i])}</span>
+            <span class="dock-label">${escapeHTML(content.chapters[i])}</span>
+          </a>
+        `).join('')}
+      </div>
+    </nav>
+  `;
+}
+
+function utilityPill() {
+  return `
+    <div class="utility-pill" id="utility-pill" aria-label="Quick controls">
+      <div class="utility-controls">
+        ${iconButton('sound-toggle', state.sound ? content.home.soundOn : content.home.soundOff, state.sound ? 'sound' : 'mute', state.sound)}
+        ${iconButton('narration-toggle', state.narration ? content.ui.narrationOn : content.ui.narrationOff, 'voice', state.narration)}
+        ${iconButton('theme-toggle', content.ui.themeToggle, state.theme === 'dark' ? 'sun' : 'moon')}
+        ${iconButton('auto-toggle', state.auto ? content.ui.pause : content.ui.autoPlay, state.auto ? 'pause' : 'play', state.auto)}
+        ${iconButton('restart', content.ui.restart, 'restart')}
+      </div>
+    </div>
+  `;
+}
+
+/* ==========================================================================
+   ACT 0: HOME / BEGINNING
+   ========================================================================== */
+function home() {
+  return `
+    <section id="home" class="page home-page" data-page="0">
+      <div class="home-content">
+        <p class="eyebrow">GMSA-KNUST presents</p>
+        <h1>${escapeHTML(content.home.title)}</h1>
+        <p>${escapeHTML(content.home.subline)}</p>
+        <div class="home-actions">
+          <button class="action-button primary" id="enter-button">${escapeHTML(content.home.enter)}</button>
+          <button class="sound-chip" id="home-sound" aria-label="${escapeHTML(state.sound ? content.home.soundOn : content.home.soundOff)}">
+            ${svg(state.sound ? 'sound' : 'mute')}
+            <span>${escapeHTML(state.sound ? content.home.soundOn : content.home.soundOff)}</span>
+          </button>
+        </div>
+        <div class="scroll-cue" id="scroll-cue" hidden>
+          <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></span>
+          <span>${escapeHTML(content.home.scrollCue)}</span>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/* ==========================================================================
+   ACT 1: THE LETTER
+   ========================================================================== */
+function letter() {
+  return `
+    <section id="letter" class="page letter-page" data-page="1">
+      <div class="act-wrap letter-wrap">
+        <p class="eyebrow">${escapeHTML(content.ui.letterEyebrow)}</p>
+        <p class="nameplate" id="letter-name">${escapeHTML(content.letter.addressee)}</p>
+        <p class="greeting-header">${escapeHTML(content.letter.greetingHeader)}</p>
+        
+        <button class="egg ${state.egg === 'done' ? 'cracked' : ''}" id="egg-button" aria-label="${escapeHTML(state.egg === 'done' ? 'Open letter' : content.letter.sealHint)}" aria-expanded="${state.egg === 'done'}">
+          <svg class="egg-progress-ring" viewBox="0 0 160 210" aria-hidden="true">
+            <ellipse cx="80" cy="105" rx="74" ry="98" pathLength="100"/>
+          </svg>
+          <span class="egg-shard"></span>
+          <span class="egg-shard"></span>
+          <span class="egg-shard"></span>
+          <span class="egg-shard"></span>
+          <span class="egg-shard"></span>
+          <span class="egg-shard"></span>
+          <span class="egg-shard"></span>
+          <span class="egg-core"></span>
+          <span class="egg-ring" aria-hidden="true"></span>
+          <span class="egg-label">${escapeHTML(state.egg === 'done' ? 'Open letter' : content.letter.sealHint)}</span>
+          <div class="egg-hold-hint" id="egg-hold-hint">Hold to open</div>
+        </button>
+        <div class="overlap-status sr-only" aria-live="polite" id="layout-status"></div>
+      </div>
+    </section>
+  `;
+}
+
+/* ==========================================================================
+   ACT 2: WISHES
+   ========================================================================== */
+function wishes() {
+  return `
+    <section id="wishes" class="page wishes-page" data-page="2">
+      <div class="act-wrap">
+        <p class="eyebrow">${escapeHTML(content.ui.wishesEyebrow)}</p>
+        <h2>${escapeHTML(content.wishes.sectionTitle)}</h2>
+        <p class="hint">${escapeHTML(content.wishes.tapHint)}</p>
+        <p class="read-count" id="read-count" aria-live="polite">
+          ${svg('heart')}
+          <span class="count-text">0 of ${content.wishes.items.length} wishes read</span>
+        </p>
+        <div class="wish-grid">
+          ${content.wishes.items.map((w, i) => `
+            <article class="wish-item">
+              <button class="carrier ${state.theme === 'light' ? 'kite' : 'lantern'}" data-wish="${i}" aria-expanded="${state.read.has(i)}" aria-label="${escapeHTML(content.ui.wishFrom.replace('{name}', w.from))}">
+                <span>${String(i + 1).padStart(2, '0')}</span>
+              </button>
+              <div class="wish-copy ${state.read.has(i) ? 'is-open' : ''}" id="wish-copy-${i}">
+                <p>${escapeHTML(w.text)}</p>
+                <small>${escapeHTML(w.from)}</small>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+        <details class="all-wishes">
+          <summary>${escapeHTML(content.wishes.allWishesLabel)}</summary>
+          <ol>
+            ${content.wishes.items.map(w => `<li><q>${escapeHTML(w.text)}</q> <span>${escapeHTML(w.from)}</span></li>`).join('')}
+          </ol>
+        </details>
+      </div>
+    </section>
+  `;
+}
+
+/* ==========================================================================
+   ACT 3: THREE PRAYERS (PART D REBUILD)
+   ========================================================================== */
+function prayers() {
+  const p = content.threePrayers || {
+    label: "Our prayer for you",
+    title: "Three things we pray for your home",
+    items: []
+  };
+  return `
+    <section id="journey" class="page prayers-page" data-page="3">
+      <div class="act-wrap">
+        <p class="eyebrow">${escapeHTML(p.label)}</p>
+        <h2 class="prayers-title">${escapeHTML(p.title)}</h2>
+        <div class="prayers-grid">
+          ${p.items.map((item, i) => `
+            <article class="prayer-card" data-prayer="${i}">
+              <div class="prayer-arch-wrap" aria-hidden="true">
+                <svg class="arch-svg" viewBox="0 0 180 260" preserveAspectRatio="none">
+                  <path class="arch-path" d="M 10 255 V 90 A 80 80 0 0 1 170 90 V 255" pathLength="100"/>
+                </svg>
+                <div class="prayer-icon">${svg(item.icon)}</div>
+              </div>
+              <h3 class="prayer-name">${escapeHTML(item.name)}</h3>
+              <p class="prayer-meaning">${escapeHTML(item.meaning)}</p>
+              <p class="prayer-line">${escapeHTML(item.line)}</p>
+            </article>
+          `).join('')}
+        </div>
+        <p class="journey-quote">${escapeHTML(content.couple.journeyLine)}</p>
+      </div>
+    </section>
+  `;
+}
+
+/* ==========================================================================
+   ACT 4: NAMES IN LIGHT (PART C REBUILD - SINGLE CALM SEQUENCE)
+   ========================================================================== */
+function names() {
+  return `
+    <section id="names" class="page names-page" data-page="4">
+      <div class="act-wrap names-wrap">
+        <p class="eyebrow blessing-lead">${escapeHTML(content.names.lead)}</p>
+        
+        <div class="names-sequence">
+          <div class="script-names-row">
+            <p class="script-name" data-name-line>${escapeHTML(content.couple.groomShort)}</p>
+            <span class="ampersand">&amp;</span>
+            <p class="script-name" data-name-line>${escapeHTML(content.couple.brideShort)}</p>
+          </div>
+          <p class="merged-name">${escapeHTML(content.couple.merged)}</p>
+          <div class="star-pattern" aria-hidden="true">
+            <svg viewBox="0 0 100 100">
+              <path d="M50 4 61 39 96 50 61 61 50 96 39 61 4 50 39 39Z M50 17 57 43 83 50 57 57 50 83 43 57 17 50 43 43Z"/>
+            </svg>
+          </div>
+        </div>
+
+        <article class="blessing-sheet">
+          <p class="verse-ref">${escapeHTML(content.names.verseReference)}</p>
+          <p class="arabic verse-ar" lang="ar" dir="rtl">${content.names.verseArabic}</p>
+          <p class="verse-translation">${escapeHTML(content.names.verseTranslation)}</p>
+          <div class="sheet-divider" aria-hidden="true"></div>
+          <p class="arabic dua-ar" lang="ar" dir="rtl">${content.names.duaArabic}</p>
+          <p class="dua-transliteration">${escapeHTML(content.names.duaTransliteration)}</p>
+          <p class="dua-translation">${escapeHTML(content.names.duaTranslation)}</p>
+          <small class="dua-source">${escapeHTML(content.names.duaSource)}</small>
+        </article>
+
+        <div class="ameen-section">
+          <button class="action-button primary ameen-button" id="ameen-button">${escapeHTML(content.ameen.button)}</button>
+          <p class="ameen-hint">${escapeHTML(content.ameen.hint)}</p>
+          <i id="ameen-light" aria-hidden="true"></i>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/* ==========================================================================
+   ACT 5: FAREWELL
+   ========================================================================== */
+function farewell() {
+  return `
+    <section id="farewell" class="page farewell-page" data-page="5">
+      <div class="act-wrap farewell-wrap">
+        <p class="eyebrow">${escapeHTML(content.farewell.closingLine)}</p>
+        <h2 class="farewell-title">Machele <span>&amp;</span> Salash</h2>
+        
+        <section class="card-maker">
+          <h3>${escapeHTML(content.wishCard.title)}</h3>
+          <label>
+            ${escapeHTML(content.wishCard.namePlaceholder)}
+            <input id="card-name" maxlength="30" autocomplete="name" />
+          </label>
+          <label>
+            ${escapeHTML(content.wishCard.wishPlaceholder)}
+            <textarea id="card-wish" maxlength="140" rows="3"></textarea>
+          </label>
+          <div class="card-actions">
+            <button class="action-button primary" id="create-card">${escapeHTML(content.wishCard.create)}</button>
+            <button class="action-button secondary" id="save-card" disabled>${escapeHTML(content.wishCard.save)}</button>
+            <button class="action-button secondary" id="share-card" disabled>${escapeHTML(content.wishCard.share)}</button>
+          </div>
+          <p class="card-tip">${escapeHTML(content.wishCard.tip)}</p>
+          <canvas id="wish-card-canvas" width="1080" height="1350" aria-label="Wish card preview"></canvas>
+        </section>
+
+        <div class="farewell-actions">
+          <button class="action-button secondary" id="share-link">${escapeHTML(content.farewell.shareLabel)}</button>
+          <button class="action-button primary" id="keepsake">${escapeHTML(content.keepsake.buttonLabel)}</button>
+        </div>
+
+        <footer class="credits-footer">
+          <div class="logos">
+            <img src="${credits.logos.association}" alt="${escapeHTML(credits.logoGmsaAlt)}" onerror="this.outerHTML='<span class=&quot;logo-placeholder&quot;>${credits.logoGmsaPlaceholder}</span>'">
+            <img src="${credits.logos.committee}" alt="${escapeHTML(credits.logoCommitteeAlt)}" onerror="this.outerHTML='<span class=&quot;logo-placeholder committee-placeholder&quot;>${credits.logoCommitteePlaceholder}</span>'">
+          </div>
+          <h3>${escapeHTML(credits.heading)}</h3>
+          <p>${escapeHTML(credits.subheading)}</p>
+          <p>${escapeHTML(credits.madeForLine)}</p>
+          <small>${credits.builtWith.map(escapeHTML).join(' · ')}</small>
+        </footer>
+      </div>
+    </section>
+  `;
+}
+
+function render() {
+  root.innerHTML = navDock() + utilityPill() + home() + letter() + wishes() + prayers() + names() + farewell();
+  bind();
+  updateDockPosition(0);
+}
+
+/* ==========================================================================
+   3D SCENE & KEEP-OUT ZONES (PART B)
+   ========================================================================== */
 function init3d() {
   const canvas = $('#webgl-canvas');
   try {
@@ -245,7 +504,6 @@ function init3d() {
     camera = new THREE.PerspectiveCamera(innerWidth < innerHeight ? 52 : 42, innerWidth / innerHeight, .1, 100);
     camera.position.set(0, MALASH.camera.homeY, MALASH.camera.homeZ);
 
-    // RoomEnvironment for realistic PBR environment reflections
     try {
       const pmrem = new THREE.PMREMGenerator(renderer);
       pmrem.compileEquirectangularShader();
@@ -253,21 +511,63 @@ function init3d() {
     } catch (_) {}
 
     scene.add(new THREE.AmbientLight(MALASH.colors.accent.white, 1.4));
-    const glow = new THREE.PointLight(MALASH.colors.accent.rose, 10, 28); glow.position.set(-2, 3, 5); scene.add(glow);
+    const glow = new THREE.PointLight(MALASH.colors.accent.rose, 10, 28);
+    glow.position.set(-2, 3, 5);
+    scene.add(glow);
 
-    // Floating hearts
-    const shape = new THREE.Shape(); shape.moveTo(0,-.16); shape.bezierCurveTo(-.16,-.01,-.34,.13,-.33,.31); shape.bezierCurveTo(-.32,.49,-.12,.51,0,.33); shape.bezierCurveTo(.12,.51,.32,.49,.33,.31); shape.bezierCurveTo(.34,.13,.16,-.01,0,-.16);
-    const geo = new THREE.ExtrudeGeometry(shape,{depth:.1,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.025,bevelThickness:.025}); geo.center();
-    const mat = new THREE.MeshStandardMaterial({color:MALASH.colors.accent.magenta,roughness:.35,metalness:.12,transparent:true,opacity:.62,emissive:MALASH.colors.accent.plum,emissiveIntensity:.3});
-    const hearts = new THREE.Group();
-    for(let i=0;i<10;i++){const h=new THREE.Mesh(geo,mat);h.position.set((Math.random()-.5)*12,(Math.random()-.5)*9,-2-Math.random()*11);h.userData.phase=Math.random()*8;h.userData.y=h.position.y;hearts.add(h);}
-    scene.add(hearts);
+    // Floating hearts with strict keep-out zone: margins (|x| > 3.6) and behind content (z <= -4)
+    const shape = new THREE.Shape();
+    shape.moveTo(0, -0.16);
+    shape.bezierCurveTo(-0.16, -0.01, -0.34, 0.13, -0.33, 0.31);
+    shape.bezierCurveTo(-0.32, 0.49, -0.12, 0.51, 0, 0.33);
+    shape.bezierCurveTo(0.12, 0.51, 0.32, 0.49, 0.33, 0.31);
+    shape.bezierCurveTo(0.34, 0.13, 0.16, -0.01, 0, -0.16);
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.08, bevelEnabled: true, bevelSegments: 1, steps: 1, bevelSize: 0.02, bevelThickness: 0.02 });
+    geo.center();
+    const mat = new THREE.MeshStandardMaterial({
+      color: MALASH.colors.accent.rose,
+      roughness: 0.4,
+      metalness: 0.05,
+      transparent: true,
+      opacity: 0.35, // subtle behind content
+      emissive: MALASH.colors.accent.plum,
+      emissiveIntensity: 0.15
+    });
+
+    heartsGroup = new THREE.Group();
+    for (let i = 0; i < 12; i++) {
+      const h = new THREE.Mesh(geo, mat);
+      const side = i % 2 === 0 ? 1 : -1;
+      const x = side * (3.8 + Math.random() * 4.5);
+      const y = (Math.random() - 0.5) * 8;
+      const z = -4 - Math.random() * 8;
+      const scale = 0.5 + Math.random() * 0.4;
+      h.scale.set(scale, scale, scale);
+      h.position.set(x, y, z);
+      h.userData.phase = Math.random() * 8;
+      h.userData.baseY = y;
+      h.userData.baseX = x;
+      heartsGroup.add(h);
+    }
+    scene.add(heartsGroup);
 
     // Stars
-    const count = navigator.deviceMemory && navigator.deviceMemory <= 4 ? 180 : 520, positions = new Float32Array(count*3);
-    for(let i=0;i<count;i++){positions[i*3]=(Math.random()-.5)*28;positions[i*3+1]=(Math.random()-.5)*20;positions[i*3+2]=-Math.random()*20;}
-    const starGeo=new THREE.BufferGeometry();starGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));
-    scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:state.theme==='dark'?MALASH.colors.accent.rose:MALASH.colors.accent.magenta,size:.045,transparent:true,opacity:.55,blending:state.theme==='dark'?THREE.AdditiveBlending:THREE.NormalBlending,depthWrite:false})));
+    const count = navigator.deviceMemory && navigator.deviceMemory <= 4 ? 180 : 520, positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 28;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+      positions[i * 3 + 2] = -Math.random() * 20;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({
+      color: state.theme === 'dark' ? MALASH.colors.accent.rose : MALASH.colors.accent.magenta,
+      size: 0.045,
+      transparent: true,
+      opacity: 0.55,
+      blending: state.theme === 'dark' ? THREE.AdditiveBlending : THREE.NormalBlending,
+      depthWrite: false
+    })));
 
     // 3D LatheGeometry Egg with Pearl finish & Wax Seal
     const eggPts = [];
@@ -338,30 +638,35 @@ function init3d() {
     egg3dGroup.scale.set(0.85, 0.85, 0.85);
     scene.add(egg3dGroup);
 
-    let t=0;
-    const tick=()=>{
-      if(!renderer||document.hidden)return;
-      frame=requestAnimationFrame(tick);
-      t+=.01;
-      if(!prefersReducedMotion){
-        hearts.children.forEach(h=>{
-          h.position.y=h.userData.y+Math.sin(t+h.userData.phase)*.1;
-          h.rotation.y=Math.sin(t*.3+h.userData.phase)*.13;
+    let t = 0;
+    const tick = () => {
+      if (!renderer || document.hidden) return;
+      frame = requestAnimationFrame(tick);
+      t += 0.01;
+      if (!prefersReducedMotion && heartsGroup) {
+        heartsGroup.children.forEach(h => {
+          h.position.y = h.userData.baseY + Math.sin(t + h.userData.phase) * 0.15;
+          h.rotation.y = Math.sin(t * 0.3 + h.userData.phase) * 0.15;
         });
       }
       updateEggPosition3D(t);
-      renderer.render(scene,camera);
+      renderer.render(scene, camera);
     };
-    if(!prefersReducedMotion) tick(); else renderer.render(scene,camera);
-    addEventListener('resize',()=>{
-      if(!renderer)return;
-      renderer.setSize(innerWidth,innerHeight);
-      camera.aspect=innerWidth/innerHeight;
-      camera.fov=innerWidth<innerHeight?52:42;
+
+    if (!prefersReducedMotion) tick(); else renderer.render(scene, camera);
+
+    addEventListener('resize', () => {
+      if (!renderer) return;
+      renderer.setSize(innerWidth, innerHeight);
+      camera.aspect = innerWidth / innerHeight;
+      camera.fov = innerWidth < innerHeight ? 52 : 42;
       camera.updateProjectionMatrix();
     });
-    canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();fallback();});
-  } catch { fallback(); }
+
+    canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); fallback(); });
+  } catch {
+    fallback();
+  }
 }
 
 function updateEggPosition3D(t = 0) {
@@ -384,22 +689,35 @@ function updateEggPosition3D(t = 0) {
   }
 }
 
-function fallback(){
+function fallback() {
   cancelAnimationFrame(frame);
-  scene?.traverse(n=>{n.geometry?.dispose();n.material?.dispose();});
-  renderer?.dispose();renderer=null;
+  scene?.traverse(n => { n.geometry?.dispose(); n.material?.dispose(); });
+  renderer?.dispose();
+  renderer = null;
   $('#webgl-canvas')?.remove();
   document.body.classList.add('static-mode');
 }
 
-function interp(stops, p){const ix=Math.min(stops.length-2,Math.floor(p*(stops.length-1))), local=p*(stops.length-1)-ix;return gsap.utils.interpolate(stops[ix],stops[ix+1],local);}
-function applySky(p=0, animate=false){
-  const stops=state.theme==='dark'?darkSky:lightSky, rootStyle=document.documentElement.style;
-  const vars={'--sky-a':interp(stops,p),'--sky-b':interp(stops,Math.min(1,p+.18)),'--sky-c':interp(stops,Math.min(1,p+.48))};
-  if(animate) gsap.to(document.documentElement,{...vars,duration:MALASH.motion.cinematic/1000,ease:MALASH.ease.cinematic,overwrite:true});
-  else Object.entries(vars).forEach(([k,v])=>rootStyle.setProperty(k,v));
-  document.documentElement.dataset.theme=state.theme;document.documentElement.dataset.skyText=state.theme==='light'||p>=.85?'dark-ink':'light-ink';document.documentElement.dataset.textBacking=state.theme==='dark'&&p>=.58&&p<.85?'on':'off';
-  scene?.fog?.color.set(state.theme==='dark'?MALASH.semantic.fogDark:MALASH.semantic.fogLight);scene?.traverse(node=>{if(node.isPointsMaterial){node.blending=state.theme==='dark'?THREE.AdditiveBlending:THREE.NormalBlending;node.opacity=state.theme==='dark'?Math.max(.08,1-Math.max(0,(p-.3)/.7)):.42;}});
+function interp(stops, p) {
+  const ix = Math.min(stops.length - 2, Math.floor(p * (stops.length - 1))), local = p * (stops.length - 1) - ix;
+  return gsap.utils.interpolate(stops[ix], stops[ix + 1], local);
+}
+
+function applySky(p = 0, animate = false) {
+  const stops = state.theme === 'dark' ? darkSky : lightSky, rootStyle = document.documentElement.style;
+  const vars = { '--sky-a': interp(stops, p), '--sky-b': interp(stops, Math.min(1, p + .18)), '--sky-c': interp(stops, Math.min(1, p + .48)) };
+  if (animate) gsap.to(document.documentElement, { ...vars, duration: MALASH.motion.cinematic / 1000, ease: MALASH.ease.cinematic, overwrite: true });
+  else Object.entries(vars).forEach(([k, v]) => rootStyle.setProperty(k, v));
+  document.documentElement.dataset.theme = state.theme;
+  document.documentElement.dataset.skyText = state.theme === 'light' || p >= .85 ? 'dark-ink' : 'light-ink';
+  document.documentElement.dataset.textBacking = state.theme === 'dark' && p >= .58 && p < .85 ? 'on' : 'off';
+  scene?.fog?.color.set(state.theme === 'dark' ? MALASH.semantic.fogDark : MALASH.semantic.fogLight);
+  scene?.traverse(node => {
+    if (node.isPointsMaterial) {
+      node.blending = state.theme === 'dark' ? THREE.AdditiveBlending : THREE.NormalBlending;
+      node.opacity = state.theme === 'dark' ? Math.max(.08, 1 - Math.max(0, (p - .3) / .7)) : .42;
+    }
+  });
 }
 
 /* ==========================================================================
@@ -459,7 +777,6 @@ function beginEggReveal(fast = false) {
     }
   });
 
-  // 1. Crack strain (0 - 0.9s)
   eggSequenceTl.to(egg, { scale: 0.95, duration: 0.15, ease: 'back.out(1.5)' }, 0)
     .to(egg, { scale: 1.05, duration: 0.35, ease: 'power2.out' }, 0.15)
     .to(innerEggLight || {}, { intensity: 2.5, duration: 0.8 }, 0.2);
@@ -469,7 +786,6 @@ function beginEggReveal(fast = false) {
       .to(rightShell.rotation, { z: 0.15, y: 0.1, duration: 0.8, ease: 'power2.out' }, 0.2);
   }
 
-  // 2. Clam Split & Whoosh (0.9s - 2.2s)
   eggSequenceTl.call(() => { playWhoosh(); }, null, 0.9)
     .to(egg, { scale: 1, duration: 0.4 }, 0.9);
 
@@ -483,7 +799,6 @@ function beginEggReveal(fast = false) {
       .to(innerEggLight || {}, { intensity: 4, duration: 1.2 }, 0.9);
   }
 
-  // 3. Shards burst & Paper rustle (2.2s - 3.4s)
   eggSequenceTl.call(() => { playPaper(); }, null, 2.2)
     .to(egg.querySelectorAll('.egg-shard'), {
       x: (i) => Math.cos(i * Math.PI / 4) * 80,
@@ -496,7 +811,6 @@ function beginEggReveal(fast = false) {
     }, 2.2)
     .fromTo(egg.querySelector('.egg-ring'), { scale: 0.3, autoAlpha: 0.9 }, { scale: 3.5, autoAlpha: 0, duration: 0.8, ease: 'power2.out' }, 2.2);
 
-  // 4. Modal flyout crossfade (3.4s)
   eggSequenceTl.call(() => {
     openLetterModal({ speed: 1 });
   }, null, 3.4);
@@ -561,19 +875,36 @@ function checkLetterLayout() {
   const overlap = a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   status.textContent = overlap ? 'Layout warning: names and egg overlap.' : 'Letter layout verified: names remain above the letter.';
   document.documentElement.dataset.letterOverlap = String(overlap);
-  if (overlap && import.meta.env.DEV) throw new Error('Letter nameplate and egg button overlap.');
 }
 
+/* ==========================================================================
+   INTERACTION BINDINGS & SUBTLE TOUCHES (PART F)
+   ========================================================================== */
 function bind() {
-  root.querySelectorAll('.chapter-rail a').forEach(a => a.addEventListener('click', e => {
+  // Navigation dock clicks
+  root.querySelectorAll('.chapter-dock a').forEach(a => a.addEventListener('click', e => {
     e.preventDefault();
-    const i = chapterIds.indexOf(a.dataset.chapter);
+    const i = Number(a.dataset.index);
     fastForwardMomentsBefore(i);
     $('#' + a.dataset.chapter).scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
   }));
 
-  root.querySelectorAll('.icon-button,.action-button,.sound-chip,.carrier').forEach(el => el.addEventListener('pointerdown', () => pressFeedback(el)));
+  // Utility menu toggle for mobile
+  const utilToggle = $('#utility-toggle');
+  const utilPill = $('#utility-pill');
+  if (utilToggle && utilPill) {
+    utilToggle.addEventListener('click', () => {
+      const open = utilPill.classList.toggle('open');
+      utilToggle.setAttribute('aria-expanded', String(open));
+    });
+  }
 
+  // Button feedback
+  root.querySelectorAll('.icon-button,.action-button,.sound-chip,.carrier').forEach(el => {
+    el.addEventListener('pointerdown', () => pressFeedback(el));
+  });
+
+  // Enter experience button
   $('#enter-button').addEventListener('click', () => {
     state.started = true;
     $('#home').classList.add('entered');
@@ -583,29 +914,27 @@ function bind() {
     exit($('.home-content')).eventCallback('onComplete', () => enter(cue));
   });
 
-  $('#home-sound').addEventListener('click', () => {
-    state.sound = !state.sound;
+  // Sound toggles
+  const updateSound = () => {
     safeSet('malash-sound', String(state.sound));
-    const b = $('#home-sound');
-    b.setAttribute('aria-label', state.sound ? content.home.soundOn : content.home.soundOff);
-    b.innerHTML = svg(state.sound ? 'sound' : 'mute') + '<span>' + escapeHTML(state.sound ? content.home.soundOn : content.home.soundOff) + '</span>';
-    $('#sound-toggle').innerHTML = svg(state.sound ? 'sound' : 'mute');
-    $('#sound-toggle').setAttribute('aria-label', state.sound ? content.home.soundOn : content.home.soundOff);
-    $('#sound-toggle').setAttribute('aria-pressed', String(state.sound));
-  });
+    const label = state.sound ? content.home.soundOn : content.home.soundOff;
+    const homeBtn = $('#home-sound');
+    if (homeBtn) {
+      homeBtn.setAttribute('aria-label', label);
+      homeBtn.innerHTML = `${svg(state.sound ? 'sound' : 'mute')}<span>${escapeHTML(label)}</span>`;
+    }
+    const navBtn = $('#sound-toggle');
+    if (navBtn) {
+      navBtn.innerHTML = svg(state.sound ? 'sound' : 'mute');
+      navBtn.setAttribute('aria-label', label);
+      navBtn.setAttribute('aria-pressed', String(state.sound));
+    }
+  };
 
-  $('#sound-toggle').addEventListener('click', () => {
-    state.sound = !state.sound;
-    safeSet('malash-sound', String(state.sound));
-    const b = $('#sound-toggle');
-    b.innerHTML = svg(state.sound ? 'sound' : 'mute');
-    b.setAttribute('aria-label', state.sound ? content.home.soundOn : content.home.soundOff);
-    b.setAttribute('aria-pressed', String(state.sound));
-    $('#home-sound').innerHTML = svg(state.sound ? 'sound' : 'mute') + '<span>' + escapeHTML(state.sound ? content.home.soundOn : content.home.soundOff) + '</span>';
-    $('#home-sound').setAttribute('aria-label', state.sound ? content.home.soundOn : content.home.soundOff);
-  });
+  $('#home-sound')?.addEventListener('click', () => { state.sound = !state.sound; updateSound(); });
+  $('#sound-toggle')?.addEventListener('click', () => { state.sound = !state.sound; updateSound(); });
 
-  $('#narration-toggle').addEventListener('click', () => {
+  $('#narration-toggle')?.addEventListener('click', () => {
     state.narration = !state.narration;
     safeSet('malash-narration', String(state.narration));
     const b = $('#narration-toggle');
@@ -613,9 +942,9 @@ function bind() {
     b.setAttribute('aria-pressed', String(state.narration));
   });
 
-  $('#theme-toggle').addEventListener('click', e => switchTheme(e.currentTarget));
-  $('#auto-toggle').addEventListener('click', () => toggleAuto());
-  $('#restart').addEventListener('click', restart);
+  $('#theme-toggle')?.addEventListener('click', e => switchTheme(e.currentTarget));
+  $('#auto-toggle')?.addEventListener('click', () => toggleAuto());
+  $('#restart')?.addEventListener('click', restart);
 
   // EGG INTERACTION BINDINGS
   const eggBtn = $('#egg-button');
@@ -655,7 +984,7 @@ function bind() {
 
       if (state.egg === 'pending') {
         const elapsed = performance.now() - holdStartTime;
-        if (elapsed > 0 && elapsed < 260) {
+        if (elapsed > 0 && elapsed < 350) {
           showHoldHint();
           playGlassTick();
         }
@@ -668,7 +997,7 @@ function bind() {
         return;
       }
       const now = performance.now();
-      if (now - lastTapTime < 380) {
+      if (now - lastTapTime < 400) {
         cancelHold();
         beginEggReveal(true);
         return;
@@ -708,6 +1037,7 @@ function bind() {
     });
   }
 
+  // Wishes interaction
   root.querySelectorAll('[data-wish]').forEach(b => b.addEventListener('click', () => {
     const i = Number(b.dataset.wish);
     state.read.add(i);
@@ -719,21 +1049,41 @@ function bind() {
     enter(copy);
   }));
 
-  $('#ameen-button').addEventListener('click', () => {
+  // Ameen button animation
+  $('#ameen-button')?.addEventListener('click', () => {
     const light = $('#ameen-light');
-    gsap.fromTo(light, { y: 20, autoAlpha: 1, scale: .3 }, { y: -95, autoAlpha: 0, scale: 1, duration: duration(prefersReducedMotion ? MALASH.motion.base : MALASH.motion.cinematic) / 1000, ease: MALASH.ease.enter });
+    gsap.fromTo(light, 
+      { y: 20, autoAlpha: 1, scale: 0.3 }, 
+      { y: -80, autoAlpha: 0, scale: 1.2, duration: duration(prefersReducedMotion ? MALASH.motion.base : MALASH.motion.cinematic) / 1000, ease: MALASH.ease.enter }
+    );
   });
 
-  $('#card-name').addEventListener('input', drawCard);
-  $('#card-wish').addEventListener('input', drawCard);
-  $('#create-card').addEventListener('click', () => {
+  // Card maker interactions
+  $('#card-name')?.addEventListener('input', drawCard);
+  $('#card-wish')?.addEventListener('input', drawCard);
+  $('#create-card')?.addEventListener('click', () => {
     drawCard();
-    $('#wish-card-canvas').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    $('#wish-card-canvas')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
-  $('#save-card').addEventListener('click', saveCard);
-  $('#share-card').addEventListener('click', shareCard);
-  $('#share-link').addEventListener('click', shareLink);
-  $('#keepsake').addEventListener('click', saveKeepsake);
+  $('#save-card')?.addEventListener('click', saveCard);
+  $('#share-card')?.addEventListener('click', shareCard);
+  $('#share-link')?.addEventListener('click', shareLink);
+  $('#keepsake')?.addEventListener('click', saveKeepsake);
+
+  // Magnetic hover for primary buttons on desktop (Part F)
+  if (matchMedia('(pointer: fine)').matches && !prefersReducedMotion) {
+    root.querySelectorAll('.action-button.primary').forEach(btn => {
+      btn.addEventListener('mousemove', e => {
+        const rect = btn.getBoundingClientRect();
+        const x = (e.clientX - rect.left - rect.width / 2) * 0.22;
+        const y = (e.clientY - rect.top - rect.height / 2) * 0.22;
+        gsap.to(btn, { x, y, duration: 0.3, ease: 'power2.out' });
+      });
+      btn.addEventListener('mouseleave', () => {
+        gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+      });
+    });
+  }
 
   ScrollTrigger.refresh();
 }
@@ -858,13 +1208,24 @@ function restart() {
   }, duration(MALASH.motion.restartFade));
 }
 
+function updateDockPosition(activeIdx) {
+  const items = root.querySelectorAll('.chapter-dock .dock-item');
+  items.forEach((item, i) => item.classList.toggle('active', i === activeIdx));
+
+  const indicator = $('#dock-indicator');
+  if (indicator && items[activeIdx]) {
+    indicator.style.transform = `translateY(${items[activeIdx].offsetTop - 8}px)`;
+  }
+}
+
 function resizeRail() {
-  const y = scrollY + innerHeight * .45;
+  const y = scrollY + innerHeight * 0.45;
   let active = 0;
   chapterIds.forEach((id, i) => {
-    if ($('#' + id).offsetTop <= y) active = i;
+    const el = $('#' + id);
+    if (el && el.offsetTop <= y) active = i;
   });
-  root.querySelectorAll('.chapter-rail a').forEach((a, i) => a.classList.toggle('active', i === active));
+  updateDockPosition(active);
 }
 
 function setupScroll() {
@@ -872,9 +1233,12 @@ function setupScroll() {
   const skyUpdate = self => {
     const p = self.progress;
     applySky(p);
-    if (p > .42 && state.egg === 'pending') finishEgg(false);
+    const progressFill = $('#dock-progress');
+    if (progressFill) progressFill.style.height = `${Math.min(100, p * 100)}%`;
+    if (p > 0.42 && state.egg === 'pending') finishEgg(false);
     resizeRail();
   };
+
   const skyConfig = { id: 'sky', trigger: root, start: 'top top', end: 'bottom bottom', onUpdate: skyUpdate };
   if (prefersReducedMotion) {
     ScrollTrigger.create(skyConfig);
@@ -884,6 +1248,7 @@ function setupScroll() {
       .to(camera?.position || {}, { z: MALASH.camera.endZ, duration: MALASH.scroll.cameraBlendSlow / (MALASH.scroll.cameraBlendBase + MALASH.scroll.cameraBlendSlow), ease: 'none' });
   }
 
+  // Act triggers
   chapterIds.forEach((id, i) => ScrollTrigger.create({
     id: 'chapter-' + i,
     trigger: '#' + id,
@@ -891,9 +1256,10 @@ function setupScroll() {
     end: 'bottom 45%',
     onEnter: () => {
       fastForwardMomentsBefore(i);
+      if (i === 3) animatePrayers();
       if (i === 4 && state.names === 'pending') animateNames();
       if (i > 0) {
-        const nodes = $('#' + id).querySelectorAll('.eyebrow,h2,h3,.journey-quote,.verse-card,.farewell-title');
+        const nodes = $('#' + id).querySelectorAll('.eyebrow,h2,h3,.journey-quote,.blessing-sheet,.farewell-title');
         nodes.forEach(el => enter(el));
       }
     },
@@ -937,6 +1303,19 @@ function setupScroll() {
   }
   resizeRail();
   ScrollTrigger.refresh();
+}
+
+function animatePrayers() {
+  const arches = root.querySelectorAll('.prayers-grid .arch-path');
+  if (!arches.length) return;
+  if (prefersReducedMotion) {
+    gsap.set(arches, { strokeDashoffset: 0 });
+    return;
+  }
+  gsap.fromTo(arches,
+    { strokeDasharray: 100, strokeDashoffset: 100 },
+    { strokeDashoffset: 0, duration: 1.2, stagger: 0.25, ease: 'power2.out', overwrite: true }
+  );
 }
 
 function animateNames() {
@@ -1069,9 +1448,27 @@ async function init() {
   checkLetterLayout();
   letterObserver = new ResizeObserver(checkLetterLayout);
   letterObserver.observe($('#letter'));
+
+  // Desktop soft cursor glow (Part F)
+  if (matchMedia('(pointer: fine)').matches && !prefersReducedMotion) {
+    const glow = document.createElement('div');
+    glow.className = 'cursor-glow';
+    document.body.appendChild(glow);
+    let curX = -200, curY = -200, targetX = -200, targetY = -200;
+    window.addEventListener('pointermove', e => { targetX = e.clientX; targetY = e.clientY; });
+    const updateGlow = () => {
+      curX += (targetX - curX) * 0.15;
+      curY += (targetY - curY) * 0.15;
+      glow.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
+      requestAnimationFrame(updateGlow);
+    };
+    updateGlow();
+  }
+
   addEventListener('pointerdown', () => {
     if (state.egg === 'playing' && !malashModal.isOpen) fastForwardEgg();
   });
+
   addEventListener('visibilitychange', () => {
     if (document.hidden) cancelAnimationFrame(frame);
     else if (renderer && !prefersReducedMotion) {

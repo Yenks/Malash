@@ -199,8 +199,32 @@
     "Beginning",
     "The Letter",
     "Wishes",
-    "The Journey",
+    "Our Prayer",
     "The Blessing",
     "Farewell"
-  ]
+  ],
+  "threePrayers": {
+    "label": "Our prayer for you",
+    "title": "Three things we pray for your home",
+    "items": [
+      {
+        "icon": "moon-star",
+        "name": "Sakinah",
+        "meaning": "Tranquillity",
+        "line": "May your home be a place of rest and calm."
+      },
+      {
+        "icon": "heart",
+        "name": "Mawaddah",
+        "meaning": "Affection",
+        "line": "May love and kindness grow between you every day."
+      },
+      {
+        "icon": "hand-heart",
+        "name": "Rahmah",
+        "meaning": "Mercy",
+        "line": "May you always be gentle and forgiving with each other."
+      }
+    ]
+  }
 }
