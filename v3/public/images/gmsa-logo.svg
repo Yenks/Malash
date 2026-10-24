@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5c969" />
+      <stop offset="100%" stop-color="#b6791d" />
+    </linearGradient>
+  </defs>
+  <!-- Outer Gold Ring -->
+  <circle cx="100" cy="100" r="92" fill="none" stroke="url(#goldGrad)" stroke-width="4" />
+  <circle cx="100" cy="100" r="84" fill="#070b24" stroke="url(#goldGrad)" stroke-width="1.5" />
+  
+  <!-- Islamic Crescent & Star -->
+  <path d="M110,48 A46,46 0 1,0 110,140 A36,36 0 1,1 110,48 Z" fill="url(#goldGrad)" />
+  <polygon points="120,86 125,97 137,97 127,105 131,117 120,110 110,117 114,105 104,97 116,97" fill="url(#goldGrad)" />
+  
+  <!-- Association Text -->
+  <text x="100" y="168" text-anchor="middle" font-family="'Inter', sans-serif" font-size="13" font-weight="700" fill="#f5c969" letter-spacing="2">GMSA-KNUST</text>
+</svg>

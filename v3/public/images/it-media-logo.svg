@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5c969" />
+      <stop offset="100%" stop-color="#b6791d" />
+    </linearGradient>
+  </defs>
+  <!-- Outer Ring -->
+  <circle cx="100" cy="100" r="92" fill="none" stroke="url(#goldGrad)" stroke-width="4" />
+  <circle cx="100" cy="100" r="84" fill="#070b24" stroke="url(#goldGrad)" stroke-width="1.5" />
+  
+  <!-- IT & Media Emblems: Aperture / Camera & Digital Code Frame -->
+  <circle cx="100" cy="88" r="32" fill="none" stroke="url(#goldGrad)" stroke-width="2.5" />
+  <circle cx="100" cy="88" r="14" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" />
+  <path d="M100,56 L118,74 M132,88 L114,106 M100,120 L82,102 M68,88 L86,70" stroke="url(#goldGrad)" stroke-width="2" />
+  
+  <!-- Committee Text -->
+  <text x="100" y="152" text-anchor="middle" font-family="'Inter', sans-serif" font-size="12" font-weight="700" fill="#f5c969" letter-spacing="2">IT &amp; MEDIA</text>
+  <text x="100" y="170" text-anchor="middle" font-family="'Inter', sans-serif" font-size="9" font-weight="500" fill="#f5c969" letter-spacing="1.5">COMMITTEE</text>
+</svg>

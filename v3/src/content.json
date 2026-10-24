@@ -1,0 +1,290 @@
+{
+  "meta": {
+    "pageTitle": "A letter is waiting for you",
+    "description": "From the GMSA-KNUST family",
+    "language": "en",
+    "association": "Ghana Muslim Students' Association, KNUST Branch",
+    "associationShort": "GMSA-KNUST",
+    "ogTitle": "A letter is waiting for you",
+    "ogDescription": "From the GMSA-KNUST family"
+  },
+  "couple": {
+    "groomFull": "Ahmed Alhassan Machele",
+    "brideFull": "Yussif Salamatu Salash",
+    "groomShort": "Machele",
+    "brideShort": "Salash",
+    "merged": "MALASH'26",
+    "hashtags": [
+      "#MALASH'26",
+      "#Created4Machele"
+    ],
+    "tagline": "Hearts Once Apart, Now Closely Aligned",
+    "journeyLine": "One promise. One journey. One forever."
+  },
+  "arrival": {
+    "basmalah": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    "loadingLine": "Preparing something special",
+    "tapPrompt": "Tap to begin",
+    "soundHint": "Sound is optional and can be turned off at any time"
+  },
+  "letter": {
+    "sealHint": "Tap the seal to open",
+    "title": "A letter of gratitude",
+    "lines": [
+      "Assalamu alaikum wa rahmatullahi wa barakatuh, to our dear newlyweds.",
+      "Today the whole GMSA-KNUST family lifts its hands and its hearts for you.",
+      "Thank you for the time, the effort and the sincerity you gave to this association. We saw it, and Allah sees it, and it is never forgotten.",
+      "Whatever you gave quietly, may it be written for you as a gift that keeps giving.",
+      "Hearts once apart, now closely aligned. What a beautiful way to begin.",
+      "May Allah bless what He has brought together, and make your home a place of tranquillity, affection and mercy.",
+      "Jazakumullahu khayran, and barakallahu lakuma."
+    ],
+    "signature": "With love and gratitude, the GMSA-KNUST family",
+    "addressee": "Machele & Salash",
+    "greetingHeader": "To our dear newlyweds"
+  },
+  "wishes": {
+    "sectionTitle": "Wishes from the community",
+    "tapHint": "Tap a lantern to read a wish",
+    "items": [
+      {
+        "from": "DUMMY Member 1",
+        "text": "DUMMY: May Allah fill your home with peace and mercy."
+      },
+      {
+        "from": "DUMMY Member 2",
+        "text": "DUMMY: Thank you for everything you did for us. Barakallahu lakuma."
+      },
+      {
+        "from": "DUMMY Member 3",
+        "text": "DUMMY: You made GMSA feel like family. Wishing you a lifetime of joy."
+      },
+      {
+        "from": "DUMMY Member 4",
+        "text": "DUMMY: May your love grow deeper with every year."
+      },
+      {
+        "from": "DUMMY Member 5",
+        "text": "DUMMY: We will always remember your kindness and service."
+      },
+      {
+        "from": "DUMMY Member 6",
+        "text": "DUMMY: May your marriage be a source of light and khayr."
+      },
+      {
+        "from": "DUMMY Member 7",
+        "text": "DUMMY: You taught us by example. Wishing you endless barakah."
+      },
+      {
+        "from": "DUMMY Member 8",
+        "text": "DUMMY: May Allah make your home a place of calm and love."
+      },
+      {
+        "from": "DUMMY Member 9",
+        "text": "DUMMY: Thank you for the memories. Happy marriage!"
+      },
+      {
+        "from": "DUMMY Member 10",
+        "text": "DUMMY: May every day together be better than the last."
+      },
+      {
+        "from": "DUMMY Member 11",
+        "text": "DUMMY: Your service inspired many of us. Barakallahu feekuma."
+      },
+      {
+        "from": "DUMMY Member 12",
+        "text": "DUMMY: Wishing you patience, laughter and lasting happiness."
+      }
+    ],
+    "readCounter": "{n} of {total} wishes read",
+    "allWishesLabel": "All wishes"
+  },
+  "journey": {
+    "title": "Three days, one journey",
+    "events": [
+      {
+        "name": "Arewa",
+        "date": "Saturday 24 October 2026"
+      },
+      {
+        "name": "Nikaah",
+        "date": "Sunday 25 October 2026"
+      },
+      {
+        "name": "Reception",
+        "date": "Sunday 25 October 2026"
+      }
+    ]
+  },
+  "names": {
+    "lead": "May this be the beginning of a blessed life together",
+    "verseReference": "Surah Ar-Rum (30:21)",
+    "verseArabic": "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِّقَوْمٍ يَتَفَكَّرُونَ",
+    "verseTranslation": "And of His signs is that He created for you from yourselves mates that you may find tranquillity in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought.",
+    "duaArabic": "بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
+    "duaTransliteration": "Barakallahu lakuma wa baraka alaykuma wa jama'a baynakuma fi khayr",
+    "duaTranslation": "May Allah bless you both, send His blessings upon you, and bring you together in goodness.",
+    "duaSource": "Tirmidhi 1091, graded hasan sahih",
+    "_verifyNote": "Display the Arabic strings exactly as given. Do not edit or re-type Arabic. The narrated wording uses the singular (laka, alayka); the dual form is the common adaptation for a couple. Add this note to README for the imam to confirm before sending."
+  },
+  "voice": {
+    "narrationFile": "/audio/narration.mp3",
+    "narratorLabel": "A message from DUMMY Narrator",
+    "transcript": "DUMMY: Transcript of the voice message goes here."
+  },
+  "keepsake": {
+    "buttonLabel": "Keep this card",
+    "headline": "Thank you, Machele & Salash",
+    "footer": "From the GMSA-KNUST family"
+  },
+  "farewell": {
+    "closingLine": "Thank you. May your home be filled with love, mercy and barakah.",
+    "shareLabel": "Share",
+    "shareText": "A thank-you for Machele & Salash from the GMSA-KNUST family",
+    "replayLabel": "Watch again"
+  },
+  "ui": {
+    "skip": "Skip",
+    "soundOn": "Turn sound off",
+    "soundOff": "Turn sound on",
+    "narrationOn": "Turn narration off",
+    "narrationOff": "Turn narration on",
+    "themeToggle": "Switch light or dark",
+    "themeTitle": "Switch day or night",
+    "soundTitle": "Sound",
+    "narrationTitle": "Narration",
+    "progress": "Experience progress",
+    "progressCurrent": "Step {current} of {total}",
+    "letterEyebrow": "A letter of gratitude",
+    "letterPrefix": "For",
+    "letterHint": "Touch the seal to unfold the letter",
+    "readTranscript": "Read transcript",
+    "wishesEyebrow": "A sky full of good wishes",
+    "wishFrom": "Read a wish from {name}",
+    "lanternCaption": "Lanterns of hope",
+    "kiteCaption": "Kites of kindness",
+    "journeyHeading": "Three days, one journey",
+    "wishEyebrow": "A wish for your journey",
+    "close": "Close",
+    "linkCopied": "Link copied.",
+    "and": "&",
+    "autoPlay": "Auto-play",
+    "pause": "Pause auto-play",
+    "restart": "Restart"
+  },
+  "home": {
+    "title": "A letter is waiting for you",
+    "subline": "From the GMSA-KNUST family",
+    "enter": "Enter",
+    "scrollCue": "Scroll to begin",
+    "soundOn": "Sound on",
+    "soundOff": "Sound off"
+  },
+  "ameen": {
+    "button": "Ameen",
+    "hint": "Say Ameen for them"
+  },
+  "wishCard": {
+    "title": "Leave your own wish",
+    "namePlaceholder": "Your name",
+    "wishPlaceholder": "Write a short wish",
+    "create": "Create card",
+    "save": "Save card",
+    "share": "Share card",
+    "headline": "To Machele & Salash",
+    "footer": "With love, {name}, from the GMSA-KNUST family",
+    "tip": "Send your card to them on WhatsApp"
+  },
+  "chapters": [
+    "Beginning",
+    "The Letter",
+    "Wishes",
+    "The Journey",
+    "The Blessing",
+    "Farewell"
+  ],
+  "nav": {
+    "openLetter": "Open letter",
+    "close": "Close",
+    "reopenHint": "Tap to read again"
+  },
+  "surprises": {
+    "counter": "{n} of 6 secrets found",
+    "constellationLabel": "MALASH'26",
+    "heartTagline": "Hearts Once Apart, Now Closely Aligned",
+    "tailLine": "Barakallahu lakuma",
+    "crescent": {
+      "arabic": "DUMMY_ARABIC_TO_BE_PROVIDED_AND_VERIFIED",
+      "transliteration": "DUMMY",
+      "translation": "DUMMY: short dua translation",
+      "status": "PENDING_VERIFICATION"
+    },
+    "ecNote": {
+      "title": "A note from the EC Office",
+      "body": "DUMMY: Message from the Executive Council goes here.",
+      "signature": "The Executive Council, GMSA-KNUST"
+    }
+  },
+  "blessings": {
+    "title": "Add a closing blessing",
+    "none": "No blessing",
+    "items": [
+      {
+        "id": "barakallah",
+        "arabic": "بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
+        "transliteration": "Barakallahu lakuma wa baraka alaykuma wa jama'a baynakuma fi khayr",
+        "translation": "May Allah bless you both, send His blessings upon you, and bring you together in goodness.",
+        "status": "SOURCE_TIRMIDHI_1091_DUAL_FORM_PENDING_IMAM_CONFIRMATION"
+      },
+      {
+        "id": "jazak",
+        "arabic": "جَزَاكُمُ اللَّهُ خَيْرًا",
+        "transliteration": "Jazakumullahu khayran",
+        "translation": "May Allah reward you both with goodness.",
+        "status": "PENDING_VERIFICATION"
+      },
+      {
+        "id": "ameen",
+        "arabic": "آمِين",
+        "transliteration": "Ameen",
+        "translation": "So be it.",
+        "status": "PENDING_VERIFICATION"
+      },
+      {
+        "id": "thanks1",
+        "arabic": "",
+        "transliteration": "",
+        "translation": "Thank you for everything you gave to GMSA-KNUST.",
+        "status": "APPROVED"
+      },
+      {
+        "id": "thanks2",
+        "arabic": "",
+        "transliteration": "",
+        "translation": "Thank you, and may your home be full of love and barakah.",
+        "status": "APPROVED"
+      }
+    ]
+  },
+  "quickWishes": [
+    "May Allah fill your home with peace and mercy.",
+    "Thank you for everything you gave to GMSA-KNUST.",
+    "Wishing you a lifetime of love and barakah.",
+    "You inspired us. May your marriage inspire others.",
+    "May every day together be better than the last.",
+    "Congratulations, and barakallahu lakuma."
+  ],
+  "whatsapp": {
+    "message": "A wish card for Machele & Salash, from {name}",
+    "promptTitle": "Your card is ready",
+    "promptBody": "Send it on WhatsApp and it will be passed on to Machele & Salash.",
+    "steps": [
+      "Your card has been saved to your phone",
+      "WhatsApp opens with a message ready",
+      "Tap the paperclip, choose your card, and send"
+    ],
+    "send": "Send on WhatsApp",
+    "shareOther": "Share to another app",
+    "save": "Save card"
+  }
+}
