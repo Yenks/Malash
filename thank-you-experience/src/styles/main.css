@@ -138,3 +138,198 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 
 
 
+
+
+/* ==========================================================================
+   MALASH MODAL & ENHANCED EGG INTERACTION (TASK 1)
+   ========================================================================== */
+.malash-modal-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  pointer-events: auto;
+}
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(18, 3, 28, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  z-index: 1;
+}
+.modal-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 44rem;
+  max-height: min(88vh, 46rem);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(145deg, #fdfbf7, #f6ede3);
+  color: #3a0d44;
+  border-radius: var(--radius-md);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  box-shadow: 0 24px 80px rgba(18, 3, 28, 0.5), 0 0 40px rgba(242, 182, 227, 0.2);
+  overflow: hidden;
+  outline: none;
+  border: 1px solid rgba(242, 182, 227, 0.4);
+}
+.modal-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle at 50% 50%, rgba(242, 182, 227, 0.35), transparent 70%);
+  filter: blur(15px);
+  pointer-events: none;
+  z-index: -1;
+  animation: modal-breathe 4s ease-in-out infinite alternate;
+}
+@keyframes modal-breathe {
+  0% { opacity: 0.5; transform: scale(0.98); }
+  100% { opacity: 0.9; transform: scale(1.02); }
+}
+.modal-border-svg {
+  position: absolute;
+  inset: 8px;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  pointer-events: none;
+  z-index: 1;
+  color: rgba(123, 42, 134, 0.35);
+}
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(123, 42, 134, 0.15);
+  background: #fdfbf7;
+  flex-shrink: 0;
+}
+.modal-header .nameplate {
+  font-family: Sacramento, cursive;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  color: #3a0d44;
+  margin: 0;
+  text-shadow: none;
+}
+.modal-header .greeting-header {
+  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  color: #7b2a86;
+  margin: 0.25rem 0 0;
+  letter-spacing: 0.05em;
+}
+.modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 184, 232, 0.6) transparent;
+}
+.modal-body p {
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  line-height: 1.6;
+  margin: 0 0 0.85rem;
+  color: #3a0d44;
+}
+.modal-signature {
+  font-family: Sacramento, cursive;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  color: #7b2a86;
+  text-align: right;
+  margin-top: 1rem;
+}
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(123, 42, 134, 0.25);
+  background: rgba(244, 236, 225, 0.8);
+  color: #3a0d44;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+.modal-close-btn:hover {
+  transform: scale(1.08);
+  background: #f4ece1;
+}
+html.modal-open, body.modal-open {
+  overflow: hidden !important;
+}
+
+/* Egg Hold & Cracked Keepsake Styling */
+.egg {
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.egg:focus-visible {
+  outline: 3px solid var(--rose);
+  outline-offset: 4px;
+}
+.egg.holding {
+  transform: scale(0.96) !important;
+  box-shadow: 0 0 2rem var(--rose) !important;
+}
+.egg-progress-ring {
+  position: absolute;
+  inset: -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  pointer-events: none;
+  transform: rotate(-90deg);
+}
+.egg-progress-ring ellipse,
+.egg-progress-ring circle {
+  fill: none;
+  stroke: var(--rose);
+  stroke-width: 3;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke 0.2s ease;
+}
+.egg-hold-hint {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 3, 28, 0.9);
+  color: var(--white);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-xs);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border: 1px solid var(--a-rose44);
+  z-index: 10;
+}
+.egg-hold-hint.visible {
+  opacity: 1;
+}
+.egg.cracked {
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: grid !important;
+  background: radial-gradient(ellipse at 40% 30%, var(--a-white99), var(--lilac) 20%, var(--plum));
+  animation: egg-breathe 4s ease-in-out infinite alternate;
+}
+@keyframes egg-breathe {
+  0% { box-shadow: 0 0 1rem rgba(242, 182, 227, 0.2); }
+  100% { box-shadow: 0 0 2.2rem rgba(242, 182, 227, 0.5); }
+}
