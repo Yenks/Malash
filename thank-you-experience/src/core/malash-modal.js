@@ -78,24 +78,31 @@ export class MalashModal {
     }, true);
   }
 
-  open({ sourceElement, title, addressee, greeting, lines, signature, speed = 1, onClose }) {
+  open({ sourceElement, title, addressee, greeting, lines, signature, customHtml, speed = 1, onClose }) {
     if (this.isOpen) return;
     this.isOpen = true;
     this.sourceElement = sourceElement || document.getElementById('egg-button');
     this.onCloseCallback = onClose;
 
-    // Header layout: names must NEVER be covered by body copy
-    this.header.innerHTML = `
-      <p class="nameplate" id="modal-nameplate">${addressee || 'Machele & Salash'}</p>
-      <p class="greeting-header">${greeting || 'To our dear newlyweds'}</p>
-    `;
+    if (customHtml) {
+      this.header.innerHTML = `
+        <h2 class="letter-title modal-reveal-line" id="modal-nameplate" style="margin-bottom: var(--space-2);">${title || 'Your card is ready'}</h2>
+      `;
+      this.body.innerHTML = customHtml;
+    } else {
+      // Header layout: names must NEVER be covered by body copy
+      this.header.innerHTML = `
+        <p class="nameplate" id="modal-nameplate">${addressee || 'Machele & Salash'}</p>
+        <p class="greeting-header">${greeting || 'To our dear newlyweds'}</p>
+      `;
 
-    // Body content lines
-    this.body.innerHTML = `
-      <h2 class="letter-title modal-reveal-line">${title || 'A letter of gratitude'}</h2>
-      ${(lines || []).map((l, i) => `<p class="modal-reveal-line" data-line="${i}">${l}</p>`).join('')}
-      <p class="modal-signature modal-reveal-line">${signature || 'With love and gratitude, the GMSA-KNUST family'}</p>
-    `;
+      // Body content lines
+      this.body.innerHTML = `
+        <h2 class="letter-title modal-reveal-line">${title || 'A letter of gratitude'}</h2>
+        ${(lines || []).map((l, i) => `<p class="modal-reveal-line" data-line="${i}">${l}</p>`).join('')}
+        <p class="modal-signature modal-reveal-line">${signature || 'With love and gratitude, the GMSA-KNUST family'}</p>
+      `;
+    }
 
     this.container.style.display = 'flex';
     this.container.style.pointerEvents = 'auto';
