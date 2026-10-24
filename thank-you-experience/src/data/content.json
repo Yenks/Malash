@@ -226,5 +226,61 @@
         "line": "May you always be gentle and forgiving with each other."
       }
     ]
+  },
+  "blessings": {
+    "title": "Add a closing blessing",
+    "none": "No blessing",
+    "items": [
+      {
+        "id": "barakallah",
+        "arabic": "بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
+        "transliteration": "Barakallahu lakuma wa baraka alaykuma wa jama'a baynakuma fi khayr",
+        "translation": "May Allah bless you both, send His blessings upon you, and bring you together in goodness.",
+        "status": "SOURCE_TIRMIDHI_1091_DUAL_FORM_PENDING_IMAM_CONFIRMATION"
+      },
+      {
+        "id": "jazak",
+        "arabic": "جَزَاكُمُ اللَّهُ خَيْرًا",
+        "transliteration": "Jazakumullahu khayran",
+        "translation": "May Allah reward you both with goodness.",
+        "status": "PENDING_VERIFICATION"
+      },
+      {
+        "id": "ameen",
+        "arabic": "آمِين",
+        "transliteration": "Ameen",
+        "translation": "So be it.",
+        "status": "PENDING_VERIFICATION"
+      },
+      {
+        "id": "thanks1",
+        "arabic": "",
+        "transliteration": "",
+        "translation": "Thank you for everything you gave to GMSA-KNUST.",
+        "status": "APPROVED"
+      },
+      {
+        "id": "thanks2",
+        "arabic": "",
+        "transliteration": "",
+        "translation": "Thank you, and may your home be full of love and barakah.",
+        "status": "APPROVED"
+      }
+    ]
+  },
+  "quickWishes": [
+    "May Allah fill your home with peace and mercy.",
+    "Thank you for everything you gave to GMSA-KNUST.",
+    "Wishing you a lifetime of love and barakah.",
+    "You inspired us. May your marriage inspire others.",
+    "May every day together be better than the last.",
+    "Congratulations, and barakallahu lakuma."
+  ],
+  "cardExport": {
+    "title": "Your card is ready",
+    "body": "Send it to Machele & Salash yourself, on WhatsApp or however you like.",
+    "save": "Save card",
+    "share": "Share",
+    "iosHint": "Press and hold the image to save it"
   }
 }

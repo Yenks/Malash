@@ -466,29 +466,148 @@ function names() {
    ACT 5: FAREWELL
    ========================================================================== */
 function farewell() {
+  const blessingsOptions = (content.blessings?.items || []).map(b => {
+    const label = b.arabic ? `${b.transliteration || b.translation} (${b.arabic})` : b.translation;
+    return `<option value="${escapeHTML(b.id)}">${escapeHTML(label)}</option>`;
+  }).join('');
+
   return `
     <section id="farewell" class="page farewell-page" data-page="5">
       <div class="act-wrap farewell-wrap">
         <p class="eyebrow">${escapeHTML(content.farewell.closingLine)}</p>
         <h2 class="farewell-title">Machele <span>&amp;</span> Salash</h2>
         
-        <section class="card-maker">
-          <h3>${escapeHTML(content.wishCard.title)}</h3>
-          <label>
-            ${escapeHTML(content.wishCard.namePlaceholder)}
-            <input id="card-name" maxlength="30" autocomplete="name" />
-          </label>
-          <label>
-            ${escapeHTML(content.wishCard.wishPlaceholder)}
-            <textarea id="card-wish" maxlength="140" rows="3"></textarea>
-          </label>
-          <div class="card-actions">
-            <button class="action-button primary" id="create-card">${escapeHTML(content.wishCard.create)}</button>
-            <button class="action-button secondary" id="save-card" disabled>${escapeHTML(content.wishCard.save)}</button>
-            <button class="action-button secondary" id="share-card" disabled>${escapeHTML(content.wishCard.share)}</button>
+        <section class="card-maker" aria-label="Wish Card Maker">
+          <p class="card-maker-lead">${escapeHTML(content.wishCard.title)}</p>
+
+          <div class="card-maker-grid">
+            <!-- Left on desktop / Sticky top on mobile: Live Preview -->
+            <div class="card-preview-pane">
+              <canvas id="wish-card-canvas" width="1080" height="1350" aria-label="Wish card live preview"></canvas>
+              <div class="preview-actions">
+                <button type="button" class="action-button primary" id="create-card">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;display:inline-block;vertical-align:middle;margin-right:6px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  ${escapeHTML(content.wishCard.create)}
+                </button>
+              </div>
+              <p class="card-tip">${escapeHTML(content.wishCard.tip)}</p>
+            </div>
+
+            <!-- Steps panel -->
+            <div class="card-steps-pane">
+              <!-- Step 1: Template -->
+              <fieldset class="step-group">
+                <legend class="step-legend"><span class="step-num">1</span> Template</legend>
+                <div class="chip-group" role="radiogroup" aria-label="Template style">
+                  <button type="button" class="template-chip active" data-template="ivory" role="radio" aria-checked="true">Ivory Paper</button>
+                  <button type="button" class="template-chip" data-template="plum" role="radio" aria-checked="false">Plum Night</button>
+                  <button type="button" class="template-chip" data-template="lavender" role="radio" aria-checked="false">Lavender Bloom</button>
+                  <button type="button" class="template-chip" data-template="violet" role="radio" aria-checked="false">Violet Geometry</button>
+                </div>
+              </fieldset>
+
+              <!-- Step 2: Colours -->
+              <fieldset class="step-group">
+                <legend class="step-legend"><span class="step-num">2</span> Background colour</legend>
+                <div class="swatch-group" role="radiogroup" aria-label="Background colour">
+                  <button type="button" class="color-swatch active" data-color="#F4ECE1" title="Ivory" style="background:#F4ECE1;" role="radio" aria-checked="true"></button>
+                  <button type="button" class="color-swatch" data-color="#6E1450" title="Plum" style="background:#6E1450;" role="radio" aria-checked="false"></button>
+                  <button type="button" class="color-swatch" data-color="#C9B8E8" title="Lavender" style="background:#C9B8E8;" role="radio" aria-checked="false"></button>
+                  <button type="button" class="color-swatch" data-color="#7B4FBF" title="Violet" style="background:#7B4FBF;" role="radio" aria-checked="false"></button>
+                  <button type="button" class="color-swatch" data-color="#F2B6E3" title="Rose" style="background:#F2B6E3;" role="radio" aria-checked="false"></button>
+                </div>
+              </fieldset>
+
+              <!-- Step 3: Message -->
+              <fieldset class="step-group">
+                <legend class="step-legend"><span class="step-num">3</span> Your message</legend>
+                <div class="field-wrap">
+                  <div class="field-label-row">
+                    <label for="card-name" class="field-label" style="margin-bottom:0;">Your name</label>
+                    <span class="char-count" id="card-name-count">0 / 30</span>
+                  </div>
+                  <input id="card-name" maxlength="30" autocomplete="name" placeholder="e.g. Amina from GMSA" class="malash-input" />
+                </div>
+
+                <div class="field-wrap">
+                  <div class="field-label-row">
+                    <label for="card-wish" class="field-label" style="margin-bottom:0;">Your wish</label>
+                    <div class="field-actions">
+                      <button type="button" class="quick-wish-btn" id="quick-wish-btn" aria-label="Cycle quick wishes">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        Quick wish
+                      </button>
+                      <span class="char-count" id="card-wish-count">0 / 140</span>
+                    </div>
+                  </div>
+                  <textarea id="card-wish" maxlength="140" rows="3" placeholder="Write your heartfelt wish or prayer..." class="malash-textarea"></textarea>
+                </div>
+              </fieldset>
+
+              <!-- Step 4: Closing Blessing -->
+              <fieldset class="step-group">
+                <legend class="step-legend"><span class="step-num">4</span> Closing blessing <span class="step-optional">(optional)</span></legend>
+                <select id="card-blessing" class="malash-select" aria-label="Select closing blessing">
+                  <option value="none">${escapeHTML(content.blessings?.none || 'No blessing')}</option>
+                  ${blessingsOptions}
+                </select>
+                <div id="blessing-preview" class="blessing-preview" aria-live="polite"></div>
+              </fieldset>
+
+              <!-- Step 5: Stickers -->
+              <fieldset class="step-group">
+                <legend class="step-legend"><span class="step-num">5</span> Stickers <span class="step-hint">(up to 3)</span></legend>
+                <div class="sticker-group" role="group" aria-label="Decorative stickers">
+                  <button type="button" class="sticker-chip active" data-sticker="heart" aria-pressed="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    Heart
+                  </button>
+                  <button type="button" class="sticker-chip" data-sticker="star" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Star
+                  </button>
+                  <button type="button" class="sticker-chip" data-sticker="lantern" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v2h4V3M7 8h10l-2 10H9L7 8zM12 10v4M9 18h6v2H9z"/></svg>
+                    Lantern
+                  </button>
+                  <button type="button" class="sticker-chip" data-sticker="crescent" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                    Crescent
+                  </button>
+                  <button type="button" class="sticker-chip" data-sticker="leaf" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></svg>
+                    Leaf
+                  </button>
+                  <button type="button" class="sticker-chip" data-sticker="blossom" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a3 3 0 0 0-3 3c0 2 3 5 3 5s3-3 3-5a3 3 0 0 0-3-3zm-6 9a3 3 0 0 0-3 3c0 1.66 1.34 3 3 3 2 0 5-3 5-3s-3-3-5-3zm12 0a3 3 0 0 0-3 3s3 3 5 3c1.66 0 3-1.34 3-3a3 3 0 0 0-5-3zm-6 4s-3 3-3 5a3 3 0 0 0 6 0c0-2-3-5-3-5z"/></svg>
+                    Blossom
+                  </button>
+                </div>
+              </fieldset>
+
+              <!-- Step 6: Format & Size -->
+              <fieldset class="step-group">
+                <legend class="step-legend"><span class="step-num">6</span> Format &amp; size</legend>
+                <div class="format-row">
+                  <div class="format-col">
+                    <span class="format-label">Alignment</span>
+                    <div class="chip-group" role="radiogroup" aria-label="Text alignment">
+                      <button type="button" class="format-chip" data-align="left" role="radio" aria-checked="false">Left</button>
+                      <button type="button" class="format-chip active" data-align="center" role="radio" aria-checked="true">Center</button>
+                      <button type="button" class="format-chip" data-align="right" role="radio" aria-checked="false">Right</button>
+                    </div>
+                  </div>
+                  <div class="format-col">
+                    <span class="format-label">Size</span>
+                    <div class="chip-group" role="radiogroup" aria-label="Card format">
+                      <button type="button" class="format-chip active" data-size="card" role="radio" aria-checked="true">Card (4:5)</button>
+                      <button type="button" class="format-chip" data-size="status" role="radio" aria-checked="false">Status (9:16)</button>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
           </div>
-          <p class="card-tip">${escapeHTML(content.wishCard.tip)}</p>
-          <canvas id="wish-card-canvas" width="1080" height="1350" aria-label="Wish card preview"></canvas>
         </section>
 
         <div class="farewell-actions">
@@ -515,6 +634,7 @@ function render() {
   root.innerHTML = navDock() + utilityPill() + home() + letter() + wishes() + prayers() + names() + farewell();
   bind();
   updateDockPosition(0);
+  drawCard();
 }
 
 /* ==========================================================================
@@ -1160,14 +1280,138 @@ function bind() {
   });
 
   // Card maker interactions
-  $('#card-name')?.addEventListener('input', drawCard);
-  $('#card-wish')?.addEventListener('input', drawCard);
-  $('#create-card')?.addEventListener('click', () => {
+  const nameInput = $('#card-name');
+  const wishInput = $('#card-wish');
+  const nameCount = $('#card-name-count');
+  const wishCount = $('#card-wish-count');
+
+  nameInput?.addEventListener('input', (e) => {
+    cardState.name = e.target.value.slice(0, 30);
+    if (nameCount) nameCount.textContent = `${cardState.name.length} / 30`;
     drawCard();
-    $('#wish-card-canvas')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
-  $('#save-card')?.addEventListener('click', saveCard);
-  $('#share-card')?.addEventListener('click', shareCard);
+
+  wishInput?.addEventListener('input', (e) => {
+    cardState.wish = e.target.value.slice(0, 140);
+    if (wishCount) wishCount.textContent = `${cardState.wish.length} / 140`;
+    drawCard();
+  });
+
+  $('#quick-wish-btn')?.addEventListener('click', () => {
+    const list = content.quickWishes || [];
+    if (!list.length) return;
+    cardState.wish = list[cardState.quickWishIndex % list.length];
+    cardState.quickWishIndex++;
+    if (wishInput) wishInput.value = cardState.wish;
+    if (wishCount) wishCount.textContent = `${cardState.wish.length} / 140`;
+    drawCard();
+  });
+
+  // Template selector
+  root.querySelectorAll('.template-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tKey = btn.dataset.template;
+      const tpl = CARD_TEMPLATES[tKey];
+      if (!tpl) return;
+      cardState.template = tKey;
+      cardState.bg = tpl.bg;
+      cardState.text = tpl.text;
+      cardState.accent = tpl.accent;
+
+      root.querySelectorAll('.template-chip').forEach(b => {
+        const active = b === btn;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-checked', active ? 'true' : 'false');
+      });
+
+      root.querySelectorAll('.color-swatch').forEach(sw => {
+        const active = sw.dataset.color.toLowerCase() === cardState.bg.toLowerCase();
+        sw.classList.toggle('active', active);
+        sw.setAttribute('aria-checked', active ? 'true' : 'false');
+      });
+
+      drawCard();
+    });
+  });
+
+  // Color swatches (Background color)
+  root.querySelectorAll('.color-swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      const col = sw.dataset.color;
+      cardState.bg = col;
+      cardState.text = ensureContrastGuard(cardState.bg, cardState.text);
+
+      root.querySelectorAll('.color-swatch').forEach(s => {
+        const active = s === sw;
+        s.classList.toggle('active', active);
+        s.setAttribute('aria-checked', active ? 'true' : 'false');
+      });
+
+      drawCard();
+    });
+  });
+
+  // Blessing dropdown
+  const blessingSelect = $('#card-blessing');
+  const blessingPreview = $('#blessing-preview');
+  blessingSelect?.addEventListener('change', (e) => {
+    cardState.blessingId = e.target.value;
+    const item = (content.blessings?.items || []).find(b => b.id === cardState.blessingId);
+    if (blessingPreview) {
+      if (item) {
+        blessingPreview.textContent = item.translation || item.arabic || '';
+      } else {
+        blessingPreview.textContent = '';
+      }
+    }
+    drawCard();
+  });
+
+  // Sticker chips
+  root.querySelectorAll('.sticker-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const st = chip.dataset.sticker;
+      if (cardState.stickers.has(st)) {
+        cardState.stickers.delete(st);
+        chip.classList.remove('active');
+        chip.setAttribute('aria-pressed', 'false');
+      } else {
+        if (cardState.stickers.size < 3) {
+          cardState.stickers.add(st);
+          chip.classList.add('active');
+          chip.setAttribute('aria-pressed', 'true');
+        }
+      }
+      drawCard();
+    });
+  });
+
+  // Format & size chips
+  root.querySelectorAll('.format-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (chip.dataset.align) {
+        cardState.align = chip.dataset.align;
+        chip.parentElement.querySelectorAll('.format-chip').forEach(c => {
+          const active = c === chip;
+          c.classList.toggle('active', active);
+          c.setAttribute('aria-checked', active ? 'true' : 'false');
+        });
+      } else if (chip.dataset.size) {
+        cardState.size = chip.dataset.size;
+        chip.parentElement.querySelectorAll('.format-chip').forEach(c => {
+          const active = c === chip;
+          c.classList.toggle('active', active);
+          c.setAttribute('aria-checked', active ? 'true' : 'false');
+        });
+      }
+      drawCard();
+    });
+  });
+
+  // Export card flow
+  $('#create-card')?.addEventListener('click', exportCardModal);
+  $('#save-card')?.addEventListener('click', exportCardModal);
+  $('#share-card')?.addEventListener('click', exportCardModal);
   $('#share-link')?.addEventListener('click', shareLink);
   $('#keepsake')?.addEventListener('click', saveKeepsake);
 
@@ -1431,77 +1675,395 @@ function animateNames() {
     .fromTo('.star-pattern', { rotation: 0 }, { rotation: 45, duration: MALASH.motion.epic / 1000, ease: MALASH.ease.cinematic }, 0);
 }
 
-function drawCard() {
-  const name = $('#card-name').value.trim().slice(0, 30), wish = $('#card-wish').value.trim().slice(0, 140), canvas = $('#wish-card-canvas'), ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, 1080, 1350);
-  const g = ctx.createLinearGradient(0, 0, 1080, 1350);
-  g.addColorStop(0, MALASH.colors.accent.plum);
-  g.addColorStop(1, MALASH.colors.accent.magenta);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 1080, 1350);
-  ctx.strokeStyle = MALASH.colors.accent.rose;
-  ctx.lineWidth = 4;
-  ctx.strokeRect(54, 54, 972, 1242);
-  ctx.textAlign = 'center';
-  ctx.fillStyle = MALASH.colors.accent.white;
-  ctx.font = '600 42px "Exo 2"';
-  ctx.fillText(content.wishCard.headline, 540, 260);
-  ctx.fillStyle = MALASH.colors.accent.rose;
-  ctx.font = '400 42px Sacramento';
-  wrapCanvas(ctx, wish || content.couple.journeyLine, 540, 470, 900, 60, 5);
-  ctx.fillStyle = MALASH.colors.accent.white;
-  ctx.font = '400 32px "Exo 2"';
-  wrapCanvas(ctx, content.wishCard.footer.replace('{name}', name), 540, 1130, 900, 44, 3);
-  ctx.font = '400 24px "Exo 2"';
-  wrapCanvas(ctx, credits.heading, 540, 1240, 900, 32, 2);
-  $('#save-card').disabled = !name || !wish;
-  $('#share-card').disabled = !name || !wish;
-  const logo = new Image();
-  logo.onload = () => ctx.drawImage(logo, 490, 840, 100, 100);
-  logo.onerror = () => {
-    ctx.fillStyle = MALASH.colors.accent.lilac;
-    ctx.beginPath();
-    ctx.arc(540, 890, 50, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = MALASH.colors.accent.plum;
-    ctx.font = '600 16px "Exo 2"';
-    ctx.fillText('IT & Media', 540, 896);
+const CARD_TEMPLATES = {
+  ivory: {
+    name: 'Ivory Paper',
+    bg: '#F4ECE1',
+    text: '#12031C',
+    accent: '#6E1450',
+    frame: 'double-line'
+  },
+  plum: {
+    name: 'Plum Night',
+    bg: '#6E1450',
+    text: '#F4ECE1',
+    accent: '#F2B6E3',
+    frame: 'stars'
+  },
+  lavender: {
+    name: 'Lavender Bloom',
+    bg: '#C9B8E8',
+    text: '#12031C',
+    accent: '#7B4FBF',
+    frame: 'arch'
+  },
+  violet: {
+    name: 'Violet Geometry',
+    bg: '#7B4FBF',
+    text: '#F4ECE1',
+    accent: '#C9B8E8',
+    frame: 'geometry'
+  }
+};
+
+const STICKER_PATHS = {
+  heart: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+  star: 'M12 2l2.4 7.2h7.6l-6.2 4.5 2.4 7.3-6.2-4.5-6.2 4.5 2.4-7.3-6.2-4.5h7.6z',
+  lantern: 'M9 3h6M10 3v2h4V3M7 8h10l-2 10H9L7 8zM12 10v4M9 18h6v2H9z',
+  crescent: 'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z',
+  leaf: 'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z M2 21c0-3 1.85-5.36 5.08-6',
+  blossom: 'M12 3a3 3 0 0 0-3 3c0 2 3 5 3 5s3-3 3-5a3 3 0 0 0-3-3zm-6 9a3 3 0 0 0-3 3c0 1.66 1.34 3 3 3 2 0 5-3 5-3s-3-3-5-3zm12 0a3 3 0 0 0-3 3s3 3 5 3c1.66 0 3-1.34 3-3a3 3 0 0 0-5-3zm-6 4s-3 3-3 5a3 3 0 0 0 6 0c0-2-3-5-3-5z'
+};
+
+const cardState = {
+  template: 'ivory',
+  bg: '#F4ECE1',
+  text: '#12031C',
+  accent: '#6E1450',
+  name: '',
+  wish: '',
+  blessingId: 'none',
+  stickers: new Set(['heart']),
+  align: 'center',
+  size: 'card',
+  quickWishIndex: 0
+};
+
+function hexToRgb(hex) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+  const num = parseInt(hex, 16);
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
   };
-  logo.src = credits.logos.committee;
 }
 
-function wrapCanvas(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
-  const rtl = /[\u0590-\u08FF]/.test(text);
-  ctx.direction = rtl ? 'rtl' : 'ltr';
-  const words = String(text).split(/\s+/), lines = [];
+function sRGBtoLinear(c) {
+  c = c / 255;
+  return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+}
+
+function relativeLuminance(hex) {
+  const rgb = hexToRgb(hex);
+  return 0.2126 * sRGBtoLinear(rgb.r) + 0.7152 * sRGBtoLinear(rgb.g) + 0.0722 * sRGBtoLinear(rgb.b);
+}
+
+function contrastRatio(hex1, hex2) {
+  const l1 = relativeLuminance(hex1);
+  const l2 = relativeLuminance(hex2);
+  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+}
+
+function ensureContrastGuard(bgHex, preferredTextHex) {
+  if (contrastRatio(bgHex, preferredTextHex) >= 4.5) {
+    return preferredTextHex;
+  }
+  const ratioDark = contrastRatio(bgHex, '#12031C');
+  const ratioLight = contrastRatio(bgHex, '#F4ECE1');
+  return ratioDark > ratioLight ? '#12031C' : '#F4ECE1';
+}
+
+function wrapCanvasLines(ctx, text, x, y, maxWidth, lineHeight, maxLines, align = 'center') {
+  const isRtl = /[\u0590-\u08FF]/.test(text);
+  ctx.direction = isRtl ? 'rtl' : 'ltr';
+  ctx.textAlign = align;
+  const words = String(text).split(/\s+/);
+  const lines = [];
   let line = '';
   for (const word of words) {
     const test = line ? line + ' ' + word : word;
     if (ctx.measureText(test).width > maxWidth && line) {
       lines.push(line);
       line = word;
-    } else line = test;
+    } else {
+      line = test;
+    }
   }
   if (line) lines.push(line);
-  lines.slice(0, maxLines).forEach((lineText, i) => ctx.fillText(lineText, x, y + i * lineHeight, maxWidth));
+  const toDraw = lines.slice(0, maxLines);
+  let curY = y;
+  toDraw.forEach((lineText, i) => {
+    curY = y + i * lineHeight;
+    ctx.fillText(lineText, x, curY);
+  });
+  return { lastY: curY, lineCount: toDraw.length };
 }
 
-function saveCard() {
-  const c = $('#wish-card-canvas'), a = document.createElement('a');
-  a.download = 'malash-wish-card.png';
-  a.href = c.toDataURL('image/png');
-  a.click();
-}
+async function drawCard() {
+  const canvas = $('#wish-card-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
 
-async function shareCard() {
-  const c = $('#wish-card-canvas');
-  try {
-    const blob = await new Promise(r => c.toBlob(r, 'image/png')), file = new File([blob], 'malash-wish-card.png', { type: 'image/png' });
-    if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: content.wishCard.headline });
-    else saveCard();
-  } catch {
-    saveCard();
+  await document.fonts?.ready;
+
+  const isStatus = cardState.size === 'status';
+  const W = 1080;
+  const H = isStatus ? 1920 : 1350;
+
+  if (canvas.width !== W || canvas.height !== H) {
+    canvas.width = W;
+    canvas.height = H;
   }
+
+  const bg = cardState.bg;
+  const text = ensureContrastGuard(bg, cardState.text);
+  const accent = cardState.accent;
+  const align = cardState.align;
+
+  // Clear canvas
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Template Frames
+  const inset = 48;
+  const fw = W - inset * 2;
+  const fh = H - inset * 2;
+
+  ctx.save();
+  if (cardState.template === 'ivory') {
+    // Ivory Paper: Double delicate line border
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(inset, inset, fw, fh);
+    ctx.lineWidth = 1;
+    ctx.strokeRect(inset + 14, inset + 14, fw - 28, fh - 28);
+  } else if (cardState.template === 'plum') {
+    // Plum Night: Ornate corner brackets with 8-point corner stars
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(inset, inset, fw, fh);
+
+    const starPath = new Path2D(STICKER_PATHS.star);
+    const cornerOffsets = [
+      [inset + 28, inset + 28],
+      [W - inset - 28, inset + 28],
+      [inset + 28, H - inset - 28],
+      [W - inset - 28, H - inset - 28]
+    ];
+    cornerOffsets.forEach(([cx, cy]) => {
+      ctx.save();
+      ctx.translate(cx - 16, cy - 16);
+      ctx.scale(32 / 24, 32 / 24);
+      ctx.fillStyle = accent;
+      ctx.fill(starPath);
+      ctx.restore();
+    });
+  } else if (cardState.template === 'lavender') {
+    // Lavender Bloom: Arch flourish framing at top
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(inset, inset + 60);
+    ctx.quadraticCurveTo(W / 2, inset - 10, W - inset, inset + 60);
+    ctx.lineTo(W - inset, H - inset);
+    ctx.lineTo(inset, H - inset);
+    ctx.closePath();
+    ctx.stroke();
+  } else if (cardState.template === 'violet') {
+    // Violet Geometry: Islamic geometric beveled corners
+    const b = 40;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(inset + b, inset);
+    ctx.lineTo(W - inset - b, inset);
+    ctx.lineTo(W - inset, inset + b);
+    ctx.lineTo(W - inset, H - inset - b);
+    ctx.lineTo(W - inset - b, H - inset);
+    ctx.lineTo(inset + b, H - inset);
+    ctx.lineTo(inset, H - inset - b);
+    ctx.lineTo(inset, inset + b);
+    ctx.closePath();
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Draw Stickers in Tasteful Decorative Slots
+  if (cardState.stickers.size > 0) {
+    const stickers = Array.from(cardState.stickers);
+    ctx.save();
+    stickers.forEach((stickerKey, idx) => {
+      const pathStr = STICKER_PATHS[stickerKey];
+      if (!pathStr) return;
+      const path = new Path2D(pathStr);
+      let sx, sy;
+      if (stickers.length === 1) {
+        sx = W / 2;
+        sy = isStatus ? 210 : 170;
+      } else if (stickers.length === 2) {
+        sx = idx === 0 ? inset + 54 : W - inset - 54;
+        sy = isStatus ? 180 : 150;
+      } else {
+        sx = idx === 0 ? inset + 54 : (idx === 1 ? W / 2 : W - inset - 54);
+        sy = isStatus ? 180 : 150;
+      }
+      ctx.save();
+      ctx.translate(sx - 18, sy - 18);
+      ctx.scale(36 / 24, 36 / 24);
+      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = accent;
+      ctx.stroke(path);
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+  // Headline: "To Machele & Salash"
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = text;
+  ctx.font = '400 68px Sacramento';
+  const headlineY = isStatus ? 300 : 250;
+  ctx.fillText('To Machele & Salash', W / 2, headlineY);
+
+  // Subtle accent line under headline
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(W / 2 - 120, headlineY + 28);
+  ctx.lineTo(W / 2 + 120, headlineY + 28);
+  ctx.stroke();
+  ctx.restore();
+
+  // Wish Message
+  const wishText = cardState.wish.trim() || 'Wishing you both a blessed, tranquil home and a lifetime of barakah together.';
+  let textX = W / 2;
+  if (align === 'left') textX = inset + 80;
+  else if (align === 'right') textX = W - inset - 80;
+
+  ctx.save();
+  ctx.textAlign = align;
+  ctx.fillStyle = text;
+  ctx.font = '400 36px "Exo 2"';
+  const wishStartY = isStatus ? 430 : 370;
+  const wishMaxLines = isStatus ? 8 : 6;
+  const wishEnd = wrapCanvasLines(ctx, wishText, textX, wishStartY, 840, 56, wishMaxLines, align);
+  ctx.restore();
+
+  // Closing Blessing (if selected)
+  let blessingNextY = wishEnd.lastY + 70;
+  if (cardState.blessingId && cardState.blessingId !== 'none') {
+    const blessingItem = (content.blessings?.items || []).find(b => b.id === cardState.blessingId);
+    if (blessingItem) {
+      if (blessingItem.arabic) {
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.direction = 'rtl';
+        ctx.fillStyle = accent;
+        ctx.font = '400 44px Amiri';
+        wrapCanvasLines(ctx, blessingItem.arabic, W / 2, blessingNextY, 860, 64, 3, 'center');
+        ctx.restore();
+        blessingNextY += 80;
+      }
+      if (blessingItem.transliteration) {
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = text;
+        ctx.font = 'italic 400 24px "Exo 2"';
+        const transEnd = wrapCanvasLines(ctx, blessingItem.transliteration, W / 2, blessingNextY, 840, 36, 2, 'center');
+        ctx.restore();
+        blessingNextY = transEnd.lastY + 40;
+      }
+      if (blessingItem.translation) {
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = text;
+        ctx.font = '400 22px "Exo 2"';
+        const translEnd = wrapCanvasLines(ctx, blessingItem.translation, W / 2, blessingNextY, 840, 32, 2, 'center');
+        ctx.restore();
+        blessingNextY = translEnd.lastY + 40;
+      }
+    }
+  }
+
+  // Sign-off: "With love, {name}, from the GMSA-KNUST family"
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = text;
+  ctx.font = '500 30px "Exo 2"';
+  const signOff = cardState.name.trim()
+    ? `With love, ${cardState.name.trim()}, from the GMSA-KNUST family`
+    : `With love, from the GMSA-KNUST family`;
+  const signOffY = isStatus ? H - 240 : H - 180;
+  wrapCanvasLines(ctx, signOff, W / 2, signOffY, 860, 42, 2, 'center');
+  ctx.restore();
+
+  // Committee / Association Footer
+  ctx.save();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = accent;
+  ctx.font = '600 20px "Exo 2"';
+  const footerY = isStatus ? H - 110 : H - 80;
+  ctx.fillText(credits.heading, W / 2, footerY);
+  ctx.restore();
+}
+
+async function exportCardModal() {
+  await drawCard();
+  const canvas = $('#wish-card-canvas');
+  if (!canvas) return;
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const imgUrl = URL.createObjectURL(blob);
+    const rawName = cardState.name.trim();
+    const sanitized = rawName ? rawName.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'malash';
+    const filename = `wish-card-${sanitized}-malash26.png`;
+    const file = new File([blob], filename, { type: 'image/png' });
+
+    const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+    const hasDownload = 'download' in HTMLAnchorElement.prototype;
+
+    const modalHtml = `
+      <div class="card-export-sheet">
+        <div class="export-preview-wrap modal-reveal-line">
+          <img src="${imgUrl}" alt="Wish card for Machele & Salash" class="export-preview-img" />
+        </div>
+        <p class="export-body-text modal-reveal-line">${escapeHTML(content.cardExport.body)}</p>
+        <div class="export-sheet-actions modal-reveal-line">
+          <a href="${imgUrl}" download="${filename}" class="action-button primary export-save-btn" id="export-save-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;display:inline-block;vertical-align:middle;margin-right:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            ${escapeHTML(content.cardExport.save)}
+          </a>
+          ${canShare ? `
+          <button type="button" class="action-button secondary export-share-btn" id="export-share-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;display:inline-block;vertical-align:middle;margin-right:8px;"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+            ${escapeHTML(content.cardExport.share)}
+          </button>` : ''}
+        </div>
+        ${!hasDownload ? `<p class="export-ios-hint modal-reveal-line">${escapeHTML(content.cardExport.iosHint)}</p>` : ''}
+      </div>
+    `;
+
+    malashModal.open({
+      sourceElement: $('#create-card'),
+      title: content.cardExport.title,
+      customHtml: modalHtml,
+      onClose: () => {
+        setTimeout(() => URL.revokeObjectURL(imgUrl), 1000);
+      }
+    });
+
+    if (canShare) {
+      setTimeout(() => {
+        const shareBtn = $('#export-share-btn');
+        shareBtn?.addEventListener('click', async () => {
+          try {
+            await navigator.share({
+              files: [file],
+              title: content.wishCard.headline
+            });
+          } catch (_) {}
+        });
+      }, 50);
+    }
+  }, 'image/png');
 }
 
 async function shareLink() {
@@ -1512,7 +2074,11 @@ async function shareLink() {
 }
 
 function saveKeepsake() {
-  const c = $('#wish-card-canvas'), ctx = c.getContext('2d'), g = ctx.createLinearGradient(0, 0, 1080, 1350);
+  const c = document.createElement('canvas');
+  c.width = 1080;
+  c.height = 1350;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 1080, 1350);
   g.addColorStop(0, MALASH.colors.accent.plum);
   g.addColorStop(1, MALASH.colors.accent.magenta);
   ctx.fillStyle = g;
@@ -1534,7 +2100,6 @@ function saveKeepsake() {
   a.download = 'malash-keepsake.png';
   a.href = c.toDataURL('image/png');
   a.click();
-  drawCard();
 }
 
 
