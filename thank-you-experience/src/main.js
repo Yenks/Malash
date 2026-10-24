@@ -112,8 +112,8 @@ function hud() {
           </a>
         `).join('')}
       </nav>
-      <button class="icon-button utility-menu" id="utility-menu" aria-label="Open controls" aria-expanded="false">${svg('menu')}</button>
-      <div class="controls">
+      <button class="icon-button utility-menu" id="utility-menu" aria-label="Open controls" aria-expanded="false" aria-controls="utility-controls">${svg('menu')}</button>
+      <div class="controls" id="utility-controls">
         ${iconButton('sound-toggle', state.sound ? content.home.soundOn : content.home.soundOff, state.sound ? 'sound' : 'mute', state.sound)}
         ${iconButton('narration-toggle', state.narration ? content.ui.narrationOn : content.ui.narrationOff, 'voice', state.narration)}
         ${iconButton('theme-toggle', content.ui.themeToggle, state.theme === 'dark' ? 'sun' : 'moon')}
@@ -616,7 +616,18 @@ function bind() {
     const expanded = e.currentTarget.getAttribute('aria-expanded') === 'true';
     e.currentTarget.setAttribute('aria-expanded', String(!expanded));
     e.currentTarget.setAttribute('aria-label', expanded ? 'Open controls' : 'Close controls');
+    e.currentTarget.innerHTML = svg(expanded ? 'menu' : 'close');
     $('.hud').classList.toggle('utilities-open', !expanded);
+    if (expanded) e.currentTarget.focus({ preventScroll: true });
+  });
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape' && $('#utility-menu')?.getAttribute('aria-expanded') === 'true') {
+      $('#utility-menu').click();
+    }
+  });
+  addEventListener('pointerdown', e => {
+    const menu = $('#utility-menu'), controls = $('#utility-controls');
+    if (menu?.getAttribute('aria-expanded') === 'true' && !menu.contains(e.target) && !controls?.contains(e.target)) menu.click();
   });
 
   // Surprise 1: Constellation
@@ -925,6 +936,7 @@ function setupScroll() {
   if (matchMedia('(pointer:fine)').matches && !prefersReducedMotion && !lenis) {
     root.classList.add('desktop-scroll');
     lenis = new Lenis({ autoRaf: false, lerp: MALASH.scroll.damping, smoothWheel: true, syncTouch: false });
+    window.malashLenis = lenis;
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add(time => {
       if (!malashModal.opened) lenis?.raf(time * 1000);

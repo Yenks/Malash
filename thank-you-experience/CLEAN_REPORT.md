@@ -116,3 +116,25 @@ In `redesign-v2`, once the egg cracked, `state.egg` was marked `'done'`, which c
 3. **Verify Crescent Dua**: Have the verified Arabic text and translation checked by an Imam or knowledgeable scholar before deployment.
 4. **Official Association Logos**: Replace placeholder SVGs in `public/images/` with final high-resolution assets.
 5. **Real Ambience Audio (Optional)**: If natural outdoor audio (wind, gentle rain) is desired, place MP3 files in `public/audio/`.
+## Fix Pass: Navigation Layout and Scroll Preservation
+
+- **Modal scroll-reset root cause (confirmed):** `body.modal-open` applied `position: fixed` and top offset. Modal close relied on removing the fixed body and then calling `window.scrollTo`, allowing browser focus restoration to scroll the egg and allowing the scroll-lock transition to reset the viewport. Replaced this with root overflow locking and scrollbar gutter reservation, saved/restored `window.scrollY` plus scrolling-element `scrollTop`, and used `{ preventScroll: true }` for focus trapping, initial modal focus, and focus return. The modal remains in `#modal-root`; scene and canvas are not remounted. Lenis is stopped/resumed, not destroyed.
+- **EC Office modal:** Uses the same `MalashModal`; it receives the same scroll and focus behavior.
+- **Utility cluster:** Collapses at 560px and below. Expanded controls form a bounded vertical stack, animate opacity/height, close on outside tap or Escape, and return focus to the menu with `preventScroll`. Menu exposes `aria-expanded` and `aria-controls`.
+- **Chapter dock:** Vertical rail uses 44px stops, a fixed 56px nominal width, an opaque ivory indicator above the progress track, an adjacent active label, and 80% opacity for inactive icons. Phones retain a centered bottom rail bounded to the viewport.
+- **Contrast:** Inactive ivory at 80% element opacity computes to **10.6:1** over the sampled dark dock backing and **5.9:1** over the brightest sampled light-theme sky backing. Active plum (#3a0d44) on ivory (#f4ece1) computes to **13.6:1**. Active label ivory on opaque plum (#12031c) computes to **17.0:1**. The dock surface is translucent over the changing sky, so rendered contrast varies by scroll position; sampled light-theme backing is the limiting case and remains above 4.5:1.
+- **Automated coverage:** Added `tests/nav-scroll-reset.js` and `npm run test:nav` for vertical layout, light/dark themes, 25/50/90% scroll positions, and close button/Escape/backdrop dismissals. Execution is currently blocked because the Playwright Chromium executable is not installed in this environment. The production build passes.
+- **Scope limits:** This branch contains only vertical scrolling; there is no horizontal layout, active-act index/progress state for horizontal navigation, or layout switch. Horizontal scenarios were not added because doing so would require rebuilding a removed layout. No deployment remote or Vercel project configuration was found, so redeployment could not be initiated from this checkout.
+
+### Values tuned in this pass
+
+| Token / property | Old | New |
+| --- | --- | --- |
+| Modal scroll lock | `body { position: fixed; top: ...; overflow: hidden }` | `html { overflow: hidden; scrollbar-gutter: stable }` with explicit scroll restoration |
+| Focus restoration | `focus()` | `focus({ preventScroll: true })` |
+| Utility collapse breakpoint | 760px | 560px |
+| Mobile expanded utility layout | display toggle; overlapping top row | bounded vertical stack with eased max-height and opacity |
+| Chapter rail step | 54.4px | 44px |
+| Chapter active width | expands to label width | fixed 44px target; label floats outside rail |
+| Chapter inactive icon opacity | 60% | 80% |
+| Chapter indicator | behind links, expands to active width | Ivory 44px stop above track; fixed width |

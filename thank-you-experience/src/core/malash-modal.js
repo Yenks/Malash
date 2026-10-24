@@ -10,6 +10,8 @@ export class MalashModal {
     this.origin = null;
     this.restoreFocus = null;
     this.scrollY = 0;
+    this.scrollContainerTop = 0;
+    this.wasLenisRunning = false;
     this.inertSiblings = [];
 
     this.host.innerHTML = `
@@ -81,7 +83,7 @@ export class MalashModal {
         .filter(el => el.offsetParent !== null);
       if (!items.length) {
         event.preventDefault();
-        this.card.focus();
+        this.card.focus({ preventScroll: true });
         return;
       }
 
@@ -90,10 +92,10 @@ export class MalashModal {
 
       if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
-        last.focus();
+        last.focus({ preventScroll: true });
       } else if (!event.shiftKey && document.activeElement === last) {
         event.preventDefault();
-        first.focus();
+        first.focus({ preventScroll: true });
       }
     };
 
@@ -175,11 +177,13 @@ export class MalashModal {
     this.el.setAttribute('aria-hidden', 'false');
 
     this.scrollY = window.scrollY;
+    this.scrollContainerTop = document.scrollingElement?.scrollTop || 0;
+    this.wasLenisRunning = !!window.malashLenis && !window.malashLenis.isStopped;
+    window.malashLenis?.stop();
     this.inertSiblings = [...document.body.children].filter(node => node !== this.host && !node.inert);
     this.inertSiblings.forEach(node => { node.inert = true; });
 
-    document.body.style.setProperty('--modal-lock-top', `${-this.scrollY}px`);
-    document.body.classList.add('modal-open');
+    document.documentElement.classList.add('modal-open');
 
     // Calculate FLIP offset and scale
     const r = this.card.getBoundingClientRect();
@@ -204,7 +208,7 @@ export class MalashModal {
       onComplete: () => {
         this.isOpening = false;
         this.card.dataset.ready = 'true';
-        this.closeBtn.focus();
+        this.closeBtn.focus({ preventScroll: true });
       }
     });
     this.animation = tl;
@@ -287,11 +291,12 @@ export class MalashModal {
         this.closeAnimation = null;
         this.el.classList.remove('is-visible');
         this.el.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('modal-open');
-        document.body.style.removeProperty('--modal-lock-top');
+        document.documentElement.classList.remove('modal-open');
+        document.documentElement.scrollTop = this.scrollContainerTop;
+        window.scrollTo({ top: this.scrollY, behavior: 'instant' });
+        if (this.wasLenisRunning) window.malashLenis?.start();
         this.inertSiblings.forEach(node => { node.inert = false; });
-        window.scrollTo(0, this.scrollY);
-        this.restoreFocus?.focus?.();
+        this.restoreFocus?.focus?.({ preventScroll: true });
         this.onClose?.();
       }
     })
